@@ -63,8 +63,12 @@ The predictions on the test set are stored in Json here. Visualisations?
 
 ## Authors
 Aaron 
+
 Haejin Cho
+
 Ilinca Vandici
+
 Kai 
+
 (Nikita Beklemishev)[github.com/lilovyjgrib] 
 
