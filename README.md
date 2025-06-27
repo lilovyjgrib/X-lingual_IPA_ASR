@@ -70,5 +70,5 @@ Ilinca Vandici
 
 Kai 
 
-[Nikita Beklemishev](github.com/lilovyjgrib) 
+[Nikita L. Beklemishev](github.com/lilovyjgrib) 
 
