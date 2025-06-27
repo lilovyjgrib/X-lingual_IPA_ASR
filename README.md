@@ -7,7 +7,7 @@ A project for the Universitaet Tuebingen ASR course (2025)
 
 ## What is a phoneme-level model and IPA?
 
-Using a grapheme to phoneme tools or a dataset annotated for phonemes, we train a CTC model to map audio sequence to a phoneme sequence (with no intermediate steps like standard orthography or vocabulary). For cross-linguistic compatibility, we convert the phonemes to be represented in (IPA)[]. 
+Using a grapheme to phoneme tools or a dataset annotated for phonemes, we train a CTC model to map audio sequence to a phoneme sequence (with no intermediate steps like standard orthography or vocabulary). For interlinguistic compatibility, we convert the phonemes to be represented in (IPA)[]. 
 
 ## English → Yoruba and linguistic generalisation
 
