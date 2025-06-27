@@ -7,11 +7,11 @@ A project for the Universitaet Tuebingen ASR course (2025)
 
 ## What is a phoneme-level model and IPA?
 
-Using a grapheme to phoneme tools or a dataset annotated for phonemes, we train a CTC model to map audio sequence to a phoneme sequence (with no intermediate steps like standard orthography or vocabulary). For interlinguistic compatibility, we convert the phonemes to be represented in (IPA)[]. 
+Using a grapheme to phoneme tools or a dataset annotated for phonemes, we train a CTC model to map audio sequence to a phoneme sequence (with no intermediate steps like standard orthography or vocabulary). For interlinguistic compatibility, we convert the phonemes to be represented in [IPA](). 
 
 ## English → Yoruba and linguistic generalisation
 
-Regardless of the orthography languages draw their sounds from a universal set of types. Linguists worked out how similar these prototypical sounds are. [link] To a lage extent what sound types a language uses is studied, here we draw data from (PHOIBLE)[]. This implies that, if two languages use a similar set, some skills in recognizing the sounds of one language can be transferred to the sounds of another. How well? 
+Regardless of the orthography languages draw their sounds from a universal set of types. Linguists worked out how similar these prototypical sounds are. [link] To a lage extent what sound types a language uses is studied, here we draw data from [PHOIBLE](). This implies that, if two languages use a similar set, some skills in recognizing the sounds of one language can be transferred to the sounds of another. How well? 
 
 ---
 
@@ -70,5 +70,5 @@ Ilinca Vandici
 
 Kai 
 
-(Nikita Beklemishev)[github.com/lilovyjgrib] 
+[Nikita Beklemishev](github.com/lilovyjgrib) 
 
