@@ -62,7 +62,7 @@ The predictions on the test set are stored in Json here. Visualisations?
 ### \#TBD
 
 ## Authors
-Aaron 
+Aaron Bahr
 
 Haejin Cho
 
