@@ -1,0 +1,13 @@
+# Python virtualenv
+.venv
+
+# Byte-compiled  cache
+__pycache__
+.py[cod]
+
+# Editor folders
+.vscode
+.idea
+
+# Environment variables
+.env
