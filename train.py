@@ -7,7 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1wKyRQENL57Cda3WxeeFOJl0edlwea1TA
 """
 
-# need to import utils.py to use PhonemeASRDataset, EarlyStopping, train_fn, evaluate_PER, early_stopping
+# need to import conversion_tools.py to use PhonemeASRDataset, EarlyStopping, train_fn, evaluate_PER, early_stopping
 # need to import configs.py to use SETTING
 
 if __name__ == "__main__":
