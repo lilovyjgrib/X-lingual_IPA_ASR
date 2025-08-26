@@ -134,7 +134,7 @@ class Inventories:
                 'o', 'ɡ', 'h', 'd', 'r', 'f', 'ɛ', 'ʃ', 'ɔ', 'd͡ʒ', '˦', '˨', 'ĩ',
                 'ũ', 'ɡ͡b', 'k͡p', 'õ', 'ẽ', '˧', 'ŋ'}
         tones = {'˧', '˦', '˨'}
-        marginal = {'õ', 'ẽ', 'ŋ'}
+        marginal = {'ã', 'ẽ', 'ŋ'}
         return full - tones - marginal
 
     def _compute_distance_matrix(self) -> DataFrame:
