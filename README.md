@@ -55,7 +55,7 @@ The predictions on the test set are stored in Json here. Visualisations?
 
 ### 📁 `dataset/`
 
-- TIMIT data
+- TIMIT data. Full train set for TIMIT (logmel scale) available at: https://drive.google.com/file/d/13k-ACA6Qt9CJ3MZI6Ot6qD9TAUY3mHUA/view?usp=drive_link
 - https://huggingface.co/datasets/mozilla-foundation/common_voice_17_0 
 - processed (TBD)
 
