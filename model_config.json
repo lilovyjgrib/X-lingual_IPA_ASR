@@ -1,0 +1,1 @@
+{"ip_channel": 39, "num_classes": 46, "num_res_blocks": 3, "num_cnn_layers": 1, "cnn_filters": 50, "cnn_kernel_size": 15, "num_rnn_layers": 2, "rnn_dim": 128, "num_dense_layers": 1, "dense_dim": 256, "use_birnn": true, "use_resnet": true, "rnn_type": "lstm", "rnn_dropout": 0.4}
