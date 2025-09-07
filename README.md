@@ -58,6 +58,7 @@ The predictions on the test set are stored in Json here. Visualisations?
 - TIMIT data. Full train set for TIMIT (logmel scale) available at: https://drive.google.com/file/d/13k-ACA6Qt9CJ3MZI6Ot6qD9TAUY3mHUA/view?usp=drive_link
 - https://huggingface.co/datasets/mozilla-foundation/common_voice_17_0 
 - processed: Yoruba (train split data) available here: https://drive.google.com/file/d/1gT22H2ejEufzh-ubf69k3dYy5jZjgIS3/view?usp=sharing
+- All processed data for Yoruba available here: https://drive.google.com/file/d/1FHJgexqfHUpKT29ikL3kGattyIRKzHaV/view?usp=drive_link
 
 ### \#TBD
 
