@@ -40,6 +40,7 @@ We are currently setting up the pipeline, preprocessing the dataset and planning
 ### `train.py`
 
 Trains the CTC. TBD
+- saved checkpoint available at: https://drive.google.com/file/d/1j8LoSxRSc13VpkNQq9B7Dxvcr-3T5Mop/view?usp=sharing
 
 ### `predict.py`
 
