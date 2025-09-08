@@ -22,10 +22,9 @@ We are currently setting up the pipeline, preprocessing the dataset and planning
 
 ## ✅ To do
 
-- [ ] Preprocess English & Yoruba data, set up target phonemes and correspondences
-- [ ] Create phoneme-level forced alignment using CTC 
-- [ ] Train phoneme model (CNN-RNN) on English
-- [ ] Evaluate on Yoruba
+- ☑️ Preprocess English & Yoruba data, set up target phonemes and correspondences
+- ☑️ Train phoneme model (ResNet-LSTM) on English
+- ☑️ Evaluate on Yoruba
 - [ ] Report
 
 ## Dependencies
