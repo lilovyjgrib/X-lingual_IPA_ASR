@@ -70,7 +70,7 @@ class Inventories:
             "l": "l",  # L
             "m": "m",  # M
             "n": "n",  # N
-            "nx": "ɾ\u0303",  # NX
+            "nx": "ŋ",  # NX
             "ng": "ŋ",  # NG
             # "nx": "ɾ̃",
             "p": "p",  # P
@@ -86,6 +86,7 @@ class Inventories:
             "y": "j",  # Y
             "z": "z",  # Z
             "zh": "ʒ",  # ZH
+            
         }
         # substitute the marginal sounds with close counterparts
         allophones_substitute = {
@@ -103,9 +104,6 @@ class Inventories:
             "en": "n",
             # "axr": "ɹ",
             # "er":  "ɹ"
-            'hh': 'h',
-            'dx': 'r',
-            'nx': 'n'
         }
         split_diphthongs_IPA = {d: list(d) for d in ['aɪ', 'aʊ', 'eɪ', 'oʊ', 'ɔɪ']}
         split_diphthongs_TIMIT = {'oy': ['oh', 'y'],
@@ -135,7 +133,7 @@ class Inventories:
     def _build_yoruba_inventory(self) -> set:
         full = {'m', 'i', 'k', 'j', 'u', 'a', 'w', 'n', 't', 'l', 's', 'b', 'e',
                 'o', 'ɡ', 'h', 'd', 'r', 'f', 'ɛ', 'ʃ', 'ɔ', 'd͡ʒ', '˦', '˨', 'ĩ',
-                'ũ', 'ɡ͡b', 'k͡p', 'õ', 'ẽ', '˧', 'ŋ'}
+                'ũ', 'ɡ͡b', 'k͡p', 'õ', 'ẽ', 'ɔ̃', '˧', 'ŋ'}
         tones = {'˧', '˦', '˨'}
         marginal = {'ã', 'ẽ', 'ŋ'}
         return full - tones - marginal
@@ -287,7 +285,7 @@ def feature_edit_alignment(
     return alignment, lev_distance
 
 
-def phoneme_error_rate(sentences1: List[str], sentences2: List[str], ft=FeatureTable(), golden: 0 | 1=1) -> float:
+def phoneme_error_rate(sentences1: List[str], sentences2: List[str], ft=FeatureTable()) -> float:
     """
     basically expected feature levenstein between two sets
     """
@@ -302,8 +300,7 @@ def phoneme_error_rate(sentences1: List[str], sentences2: List[str], ft=FeatureT
         vectors2 = _feature_vectorize(s2, ft)
         _, dist, _ = compute_alignment_matrix(vectors1, vectors2, deletion_cost, insertion_cost, substitution_cost)
         sum_edits += dist
-        if golden == 1: sum_phonemes += len(phonemes2)
-        else: sum_phonemes += len(phonemes1)
+        sum_phonemes += max(len(phonemes1), len(phonemes2))
     return sum_edits / sum_phonemes
 
 
