@@ -23,13 +23,14 @@ path, filename = os.path.split(full_path)
 
 class Embeddings_Collect():
     def __init__(self, dataset):
-        self.loading_fn = self.load_timit if dataset == "Timit" else self.load_yoruba
+        self.dataset_name  = dataset
+        self.loading_fn = self.load_timit if self.dataset_name == "Timit" else self.load_yoruba
         self.dataset = self.loading_fn()
         self.inventory = cv.Inventories()
         self.timit2ipa = self.add_extra_vowels()
         self.ipa2timit = {v: k for k, v in self.timit2ipa.items()}
         self.mfccs = [i["mfcc"] for i in self.dataset]
-        self.labels_processed = [[self.timit2ipa[y] for y in x ] for x in process_labels_arpa([i["labels"] for i in self.dataset])] if dataset =="Timit" else process_labels_yoruba(self.dataset)
+        self.labels_processed = [[self.timit2ipa[y] for y in x ] for x in process_labels_arpa([i["labels"] for i in self.dataset])] if self.dataset_name =="Timit" else process_labels_yoruba(self.dataset)
         self.mappings_obj = self.load_mappings()
         self.arpa2idx = self.mappings_obj["arpa2idx"]
         self.idx2arpa = self.mappings_obj["idx2arpa"]
@@ -59,10 +60,10 @@ class Embeddings_Collect():
             "uw": "u",  # goose
             "ux": "ʉ",  # dude}
             # Added from Haejin code
-            "a" :"e",
+            "a" :"a",
             "o":"o",
-            "eh":"e",
-            "oh":"ɔ"
+            "oh":"ɔ",
+            "e":"e"
 }
 
 
@@ -151,7 +152,7 @@ class Embeddings_Collect():
         predictions = []
         embeddings_list = []
         #Add tqdm maybe
-        for i, j in tqdm(zip(self.mfccs[0:1000], self.labels_processed[0:1000]), total=len(self.mfccs[0:1000])):
+        for i, j in tqdm(zip(self.mfccs, self.labels_processed), total=len(self.mfccs)):
             with torch.no_grad():
                 feats = torch.unsqueeze(i,0)
                 logits = self.model(feats)
@@ -172,13 +173,16 @@ class Embeddings_Collect():
 
         for p, l, embedding in  tqdm(zip(self.predictions[0:1000], self.labels_processed[0:1000], self.embeddings_list[0:1000]), total = len(self.embeddings_list[0:1000])):
   # switch stuff over 2 ipa 
-            if self.dataset == "Timit":
-                l = " ".join([self.timit2ipa[i] for i in l])
-       
+            if self.dataset_name == "Timit":
+                #l = " ".join([self.timit2ipa[j] for j in l])
+                l = " ".join(l)
             p = [self.timit2ipa[i] for i in p ]
-          
-            a, score = cv.feature_edit_alignment(" ".join(p)," ".join(l))
-  
+            
+            # Note; Yoruba labels already preprocessed
+            # Need to convert predictions to a string tho
+            a, score = cv.feature_edit_alignment(" ".join(p),l)
+       
+            
             extractable_bools = [True if (a[i][0]==a[i][1]) and (a[i][0] in self.vowels_dict.values()) and (i in list(range(len(p))))  else False for i in range(len(a))]
   # Embeddings of all the matching vowels 
 
@@ -275,7 +279,10 @@ class PPGPlot():
             s=60,               # marker size
         alpha=0.6
     )
-        # Maybe don't use this actually ? Idk if still have to cluster the regular vowels ? 
+            for _, row in grp.iterrows():
+                plt.text(row['F2'] + 10, row['F1'], str(row['Vowel']), fontsize=9, color=palette[i])
+
+        """
         if canonical :
             sns.kdeplot(x=grp.F2, y=grp.F1,
                 levels=[0.5],
@@ -283,16 +290,18 @@ class PPGPlot():
                 linewidths=2,
                 alpha=0.5,
                 label=vowel)
-
+        """
         plt.legend(title='Vowel', frameon=True, loc='upper right')
 
 # Phonetic convention: F1 ↑ downwards, F2 ↑ leftwards
-        plt.gca().invert_yaxis()
-        plt.gca().invert_xaxis()
-
-        plt.xlabel('F2 (Hz)')
-        plt.ylabel('F1 (Hz)')
-        plt.title('Vowel Space')
+        #plt.gca().invert_yaxis()
+        #plt.gca().invert_xaxis()
+        # Assuming no axis inversion
+        plt.gca()
+        plt.gca()
+        plt.xlabel('X1')
+        plt.ylabel('X1')
+        plt.title(self.dataset_name+":  "+'Vowel Space')
         plt.tight_layout()
         plt.show()
 
@@ -306,5 +315,6 @@ embeddings = emb.embeddings_per_wowel()
 
 plotting = PPGPlot(vowel_embeddings=embeddings, dataset_name="Timit", selected_vowels=[])
 plotting.get_vowel_df()
+# Can use this returned df for similairty analysis 
 t_sne_res = plotting.apply_t_SNE()
 plotting.plot(t_sne_res, canonical=False)
