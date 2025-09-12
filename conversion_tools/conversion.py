@@ -25,13 +25,13 @@ class Inventories:
             "ao": "ɔ",  # thought
             "aw": "aʊ",  # mouth
             "ay": "aɪ",  # price
-            "ax": "ə",  # comma (schwa)
-            "axr": "ə\u02de",  # nurse (r-colored schwa)
+            "ax": "ə",  # comma (unstressed)
+            "axr": "ə\u02de",  # nurse
             "eh": "ɛ",  # dress
-            "er": "ɜ˞",  # bird (r-colored vowel)
+            "er": "ɜ˞",  # bird
             "ey": "eɪ",  # face
             "ih": "ɪ",  # kit
-            "ix": "ɨ",  # high central unrounded (near-schwa)
+            "ix": "ɨ",  # roses (unstressed)
             "iy": "i",  # fleece
             "ow": "oʊ",  # goat
             "oy": "ɔɪ",  # choice
@@ -53,40 +53,38 @@ class Inventories:
             "epi": "||",
             "h#": "/",
             # consonants
-            "b": "b",  # B
-            "ch": "t͡ʃ",  # CH
-            "d": "d",  # D
-            "dh": "ð",  # DH
-            "dx": "ɾ",  # DX
-            "el": "l̩",  # EL
-            "em": "m̩",  # EM
-            "en": "n̩",  # EN
-            "f": "f",  # F
-            "g": "ɡ",  # G
-            "hh": "h",  # HH
-            "h": "h",
-            "jh": "d͡ʒ",  # JH
-            "k": "k",  # K
-            "l": "l",  # L
-            "m": "m",  # M
-            "n": "n",  # N
-            "nx": "ŋ",  # NX
-            "ng": "ŋ",  # NG
-            # "nx": "ɾ̃",
-            "p": "p",  # P
-            "q": "ʔ",  # Q
-            "r": "ɹ",  # R
-            "s": "s",  # S
-            "sh": "ʃ",  # SH
-            "t": "t",  # T
-            "th": "θ",  # TH
-            "v": "v",  # V
-            "w": "w",  # W
-            "wh": "ʍ",  # WH
-            "y": "j",  # Y
-            "z": "z",  # Z
-            "zh": "ʒ",  # ZH
-            
+            "b": "b",  # barter
+            "ch": "t͡ʃ",  # charter
+            "d": "d",  # daughter
+            "dh": "ð",  # rhythm
+            "dx": "ɾ",  # bitter
+            "el": "l̩",  # bottle
+            "em": "m̩",  # bottom
+            "en": "n̩",  # button
+            "f": "f",  # fiddle
+            "g": "ɡ",  # giggle
+            "hh": "h",  # huddle
+            "h": "h",  # harder
+            "jh": "d͡ʒ",  # jiggle
+            "k": "k",  # cuddle
+            "l": "l",  # larder
+            "m": "m",  # mortar
+            "n": "n",  # knotter
+            "nx": "ɾ\u0303",  # winter
+            "ng": "ŋ",  # winger
+            "p": "p",  # puddle
+            "q": "ʔ",  # kitschy
+            "r": "ɹ",  # wringer
+            "s": "s",  # subtle
+            "sh": "ʃ",  # chauffeur
+            "t": "t",  # tartar
+            "th": "θ",  # euthanasia
+            "v": "v",  # vedic
+            "w": "w",  # weary
+            "wh": "ʍ",  # wherry
+            "y": "j",  # yolky
+            "z": "z",  # xenophobia
+            "zh": "ʒ",  # measure
         }
         # substitute the marginal sounds with close counterparts
         allophones_substitute = {
@@ -104,6 +102,9 @@ class Inventories:
             "en": "n",
             # "axr": "ɹ",
             # "er":  "ɹ"
+            'hh': 'h',
+            'dx': 'r',
+            'nx': 'n'
         }
         split_diphthongs_IPA = {d: list(d) for d in ['aɪ', 'aʊ', 'eɪ', 'oʊ', 'ɔɪ']}
         split_diphthongs_TIMIT = {'oy': ['oh', 'y'],
@@ -285,7 +286,7 @@ def feature_edit_alignment(
     return alignment, lev_distance
 
 
-def phoneme_error_rate(sentences1: List[str], sentences2: List[str], ft=FeatureTable()) -> float:
+def phoneme_error_rate(sentences1: List[str], sentences2: List[str], ft=FeatureTable(), golden: 0 | 1=1) -> float:
     """
     basically expected feature levenstein between two sets
     """
@@ -300,7 +301,8 @@ def phoneme_error_rate(sentences1: List[str], sentences2: List[str], ft=FeatureT
         vectors2 = _feature_vectorize(s2, ft)
         _, dist, _ = compute_alignment_matrix(vectors1, vectors2, deletion_cost, insertion_cost, substitution_cost)
         sum_edits += dist
-        sum_phonemes += max(len(phonemes1), len(phonemes2))
+        if golden == 1: sum_phonemes += len(phonemes2)
+        else: sum_phonemes += len(phonemes1)
     return sum_edits / sum_phonemes
 
 
