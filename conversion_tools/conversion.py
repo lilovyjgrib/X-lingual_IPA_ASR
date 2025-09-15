@@ -23,18 +23,18 @@ class Inventories:
             "ae": "æ",  # trap
             "ah": "ʌ",  # strut
             "ao": "ɔ",  # thought
-            "aw": "aʊ",  # mouth
-            "ay": "aɪ",  # price
+            "aw": "aw",  # mouth ; we use a more phonologically accurate representation of diphthongs
+            "ay": "aj",  # price
             "ax": "ə",  # comma (unstressed)
             "axr": "ə\u02de",  # nurse
             "eh": "ɛ",  # dress
             "er": "ɜ˞",  # bird
-            "ey": "eɪ",  # face
+            "ey": "ej",  # face
             "ih": "ɪ",  # kit
             "ix": "ɨ",  # roses (unstressed)
             "iy": "i",  # fleece
-            "ow": "oʊ",  # goat
-            "oy": "ɔɪ",  # choice
+            "ow": "ow",  # goat
+            "oy": "ɔj",  # choice
             "uh": "ʊ",  # foot
             "uw": "u",  # goose
             "ux": "ʉ",  # dude
@@ -106,7 +106,7 @@ class Inventories:
             'dx': 'r',
             'nx': 'n'
         }
-        split_diphthongs_IPA = {d: list(d) for d in ['aɪ', 'aʊ', 'eɪ', 'oʊ', 'ɔɪ']}
+        split_diphthongs_IPA = {d: list(d) for d in ['aj', 'aw', 'ej', 'ow', 'ɔj']}
         split_diphthongs_TIMIT = {'oy': ['oh', 'y'],
                                   'ow': ['o', 'w'],
                                   'ay': ['a', 'y'],
@@ -134,9 +134,10 @@ class Inventories:
     def _build_yoruba_inventory(self) -> set:
         full = {'m', 'i', 'k', 'j', 'u', 'a', 'w', 'n', 't', 'l', 's', 'b', 'e',
                 'o', 'ɡ', 'h', 'd', 'r', 'f', 'ɛ', 'ʃ', 'ɔ', 'd͡ʒ', '˦', '˨', 'ĩ',
-                'ũ', 'ɡ͡b', 'k͡p', 'õ', 'ẽ', 'ɔ̃', '˧', 'ŋ'}
-        tones = {'˧', '˦', '˨'}
-        marginal = {'ã', 'ẽ', 'ŋ'}
+                'ũ', 'ɡ͡b', 'k͡p', 'ɛ̃', 'ã', '˧', 'ŋ'}
+        dialectal = {'ʊ', 'ɪ'}  # in Ijesha and Ekiti
+        tones = {'˧', '˦', '˨'}  # in phonological analysis, ɔ ~ o, ɛ ~ e are mainly contrasted by [ATR] feature
+        marginal = {'ɔ̃', 'ɛ̃', 'ŋ'}  # nasal ɔ and a are allophonic, traditionally ɔ is the symbol, phonologically a
         return full - tones - marginal
 
     def _compute_distance_matrix(self) -> DataFrame:
