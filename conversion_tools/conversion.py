@@ -1,5 +1,5 @@
 import itertools
-from typing import List, Tuple, Dict, Callable
+from typing import List, Tuple, Dict, Callable, Literal
 
 import numpy as np
 import pandas as pd
@@ -144,7 +144,7 @@ class Inventories:
         matrix = pd.DataFrame(0.0, index=list(self.yoruba_ipa), columns=list(self.english_ipa))
         for y in self.yoruba_ipa:
             for e in self.english_ipa:
-                matrix.loc[y, e] = _compute_ipa_distance(y, e, self.ft)
+                matrix.loc[y, e] = compute_ipa_distance(y, e, self.ft)
         return matrix.sort_index().sort_index(axis=1)
 
     def find_closest(self, sound: str, lang: str = 'yoruba', k: int = 1) -> List[str]:
@@ -172,7 +172,7 @@ def _compute_vector_distance(v1: List[int], v2: List[int]) -> float:
     return round(np.sum(np.abs(arr1 - arr2)) / len(arr1), 4)
 
 
-def _compute_ipa_distance(ipa1: str, ipa2: str, ft: FeatureTable) -> float:
+def compute_ipa_distance(ipa1: str, ipa2: str, ft: FeatureTable) -> float:
     """Compute feature-based distance between two IPA symbols."""
     vec1 = _ipa_to_vector(ipa1, ft)
     vec2 = _ipa_to_vector(ipa2, ft)
@@ -190,7 +190,7 @@ def _compute_ipa_distance(ipa1: str, ipa2: str, ft: FeatureTable) -> float:
 
 
 # COMPUTING STRING DISTANCE
-def _feature_vectorize(ipa: str, ft: FeatureTable) -> np.ndarray:
+def feature_vectorize(ipa: str, ft: FeatureTable) -> np.ndarray:
     """
     vectorize the whole IPA string
     """
@@ -200,7 +200,7 @@ def _feature_vectorize(ipa: str, ft: FeatureTable) -> np.ndarray:
     return np.array([v.numeric() for v in vecs])
 
 
-def _ipa_segments(ipa: str, ft: FeatureTable) -> List[str]:
+def ipa_segments(ipa: str, ft: FeatureTable) -> List[str]:
     return ft.ipa_segs(ipa)
 
 
@@ -220,28 +220,28 @@ def insertion_cost(_: np.ndarray) -> float:
 def compute_alignment_matrix(
         source: np.ndarray,
         target: np.ndarray,
-        del_cost: Callable,
-        ins_cost: Callable,
-        sub_cost: Callable
+        del_cost: Callable[...,float],
+        ins_cost: Callable[...,float],
+        sub_cost: Callable[...,float]
 ) -> Tuple[np.ndarray, np.float64, np.ndarray]:
     # make levenstein matrix and initialise fist row and column
     n, m = len(source), len(target)
     D = np.zeros((n + 1, m + 1))  # distances
-    O = np.full((n + 1, m + 1), "", dtype=object)  # operations
-    O[0, 0] = "begin"
+    O = np.empty((n + 1, m + 1), dtype='S1')  # operations
+    O[0, 0] = b'B'  # begin
     for i in range(1, n + 1):
         D[i, 0] = D[i - 1, 0] + del_cost(source[i - 1])
-        O[i, 0] = 'del'
+        O[i, 0] = b'D'  # delete
     for j in range(1, m + 1):
         D[0, j] = D[0, j - 1] + ins_cost(target[j - 1])
-        O[0, j] = 'ins'
+        O[0, j] = b'I'  # insert
     # fill in
     for i in range(1, n + 1):
         for j in range(1, m + 1):
             costs = {
-                'sub': D[i - 1, j - 1] + sub_cost(source[i - 1], target[j - 1]),
-                'del': D[i - 1, j] + del_cost(source[i - 1]),
-                'ins': D[i, j - 1] + ins_cost(target[j - 1])
+                b'S': D[i - 1, j - 1] + sub_cost(source[i - 1], target[j - 1]),
+                b'D': D[i - 1, j] + del_cost(source[i - 1]),
+                b'I': D[i, j - 1] + ins_cost(target[j - 1])
             }
             best_operation = min(costs, key=costs.get)
             D[i, j] = costs[best_operation]
@@ -255,17 +255,17 @@ def trace_alignment(operations: np.ndarray, source: List[str],
     alignment = []
     while i > 0 or j > 0:
         operation = operations[i, j]
-        if operation == 'sub':
+        if operation == b'S':
             alignment.append((source[i - 1], target[j - 1]))
             i -= 1
             j -= 1
-        elif operation == 'del':
+        elif operation == b'D':
             alignment.append((source[i - 1], "ε"))
             i -= 1
-        elif operation == 'ins':
+        elif operation == b'I':
             alignment.append(("ε", target[j - 1]))
             j -= 1
-        elif operation == 'begin':
+        elif operation == b'B':
             break
         else:
             raise RuntimeError(f"Indices didn't align")
@@ -276,18 +276,28 @@ def trace_alignment(operations: np.ndarray, source: List[str],
 def feature_edit_alignment(
         ipa1: str,
         ipa2: str,
-        ft=FeatureTable()
+        ft=FeatureTable(),
+        d: Callable[...,float]=deletion_cost,
+        i: Callable[...,float]=insertion_cost,
+        s: Callable[...,float]=substitution_cost
 ) -> tuple[list[tuple[str, str]], float]:
-    phonemes1 = _ipa_segments(ipa1, ft)
-    phonemes2 = _ipa_segments(ipa2, ft)
-    vectors1 = _feature_vectorize(ipa1, ft)
-    vectors2 = _feature_vectorize(ipa2, ft)
-    D, lev_distance, O = compute_alignment_matrix(vectors1, vectors2, deletion_cost, insertion_cost, substitution_cost)
+    phonemes1 = ipa_segments(ipa1, ft)
+    phonemes2 = ipa_segments(ipa2, ft)
+    vectors1 = feature_vectorize(ipa1, ft)
+    vectors2 = feature_vectorize(ipa2, ft)
+    D, lev_distance, O = compute_alignment_matrix(vectors1, vectors2, d, i, s)
     alignment = trace_alignment(O, phonemes1, phonemes2)
     return alignment, lev_distance
 
 
-def phoneme_error_rate(sentences1: List[str], sentences2: List[str], ft=FeatureTable(), golden: 0 | 1=1) -> float:
+def phoneme_error_rate(sentences1: List[str], 
+                       sentences2: List[str], 
+                       ft=FeatureTable(), 
+                       golden: bool=1,
+                       d: Callable[...,float]=deletion_cost,
+                       i: Callable[...,float]=insertion_cost,
+                       s: Callable[...,float]=substitution_cost
+) -> float:
     """
     basically expected feature levenstein between two sets
     """
@@ -296,27 +306,39 @@ def phoneme_error_rate(sentences1: List[str], sentences2: List[str], ft=FeatureT
     sum_edits = 0
     sum_phonemes = 0
     for s1, s2 in zip(sentences1, sentences2):
-        phonemes1 = _ipa_segments(s1, ft)
-        phonemes2 = _ipa_segments(s2, ft)
-        vectors1 = _feature_vectorize(s1, ft)
-        vectors2 = _feature_vectorize(s2, ft)
-        _, dist, _ = compute_alignment_matrix(vectors1, vectors2, deletion_cost, insertion_cost, substitution_cost)
+        phonemes1 = ipa_segments(s1, ft)
+        phonemes2 = ipa_segments(s2, ft)
+        vectors1 = feature_vectorize(s1, ft)
+        vectors2 = feature_vectorize(s2, ft)
+        _, dist, _ = compute_alignment_matrix(vectors1, vectors2, d, i, s)
         sum_edits += dist
         if golden == 1: sum_phonemes += len(phonemes2)
         else: sum_phonemes += len(phonemes1)
     return sum_edits / sum_phonemes
 
 
-def make_confusion_matrix(predicted_sents: List[str], golden_sents: List[str], ft=FeatureTable()) -> pd.DataFrame:
+def make_confusion_matrix(predicted_sents: List[str], golden_sents: List[str], 
+                          ft=FeatureTable(), form: Literal["counts", "joint", "given_gold", "given_pred"]="counts"
+) -> pd.DataFrame:
     assert len(predicted_sents) == len(golden_sents), "two lists don't align"
     assert predicted_sents and golden_sents, "some list is empty"
     alignments = []
     for p, g in zip(predicted_sents, golden_sents):
-        alignment = feature_edit_alignment(p, g, ft)[0]
+        alignment, _ = feature_edit_alignment(p, g, ft)
         alignments.extend(alignment)
     inventory_pred, inventory_gold = set([p for p, g in alignments]), set([g for p, g in alignments])
+    
     coocurrences = pd.DataFrame(0, index=list(inventory_pred), columns=list(inventory_gold))
+    pred_ids = {lab: i for i, lab in enumerate(coocurrences.index)}
+    gold_ids = {lab: j for j, lab in enumerate(coocurrences.columns)}
+    counts = coocurrences.values
     for src, tgt in alignments:
-        coocurrences.loc[src, tgt] += 1
-    confusions = coocurrences.div(coocurrences.sum(axis=0).replace(0, np.nan), axis=1).fillna(0)
-    return (confusions * 100).round(1)
+        i = pred_ids[src]
+        j = gold_ids[tgt]
+        counts[i, j] += 1
+    
+    match form:
+        case "counts": return coocurrences
+        case "joint": return coocurrences.div(coocurrences.values.sum())
+        case "given_gold": return coocurrences.div(coocurrences.sum(axis=0).replace(0, np.nan), axis=1).fillna(0)
+        case "given_pred": return coocurrences.div(coocurrences.sum(axis=1).replace(0, np.nan), axis=0).fillna(0)

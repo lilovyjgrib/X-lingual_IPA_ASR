@@ -4,4 +4,4 @@ _install_utf8()
 
 from .conversion import *
 from .g2p_yoruba import convert as yoruba_to_ipa
-from .english2ipa import *
+from .english2ipa import english_to_ipa as arpa_to_ipa
