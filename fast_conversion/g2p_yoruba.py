@@ -120,12 +120,12 @@ def convert(
     return ' '.join(tokens)
 
 # Yoruba IPA inventory
-_CONS: Set[str] = {"m","k","j","w","n","t","l","s","b","ɡ","h","d","r","f","ŋ","ɡ͡b","k͡p","ʃ","d͡ʒ"}
-_VOW:  Set[str] = {"i","u","a","e","o","ɛ","ɔ","ĩ","ũ","ã"}
-_MARG: = {"ɛ̃"}
-_DIA: = {"ʊ","ɪ"}
-_PAUS: = {"/","|","||"}
-_TONE: = {"˥","˧","˩"}
+_CONS = {"m","k","j","w","n","t","l","s","b","ɡ","h","d","r","f","ŋ","ɡ͡b","k͡p","ʃ","d͡ʒ"}
+_VOW = {"i","u","a","e","o","ɛ","ɔ","ĩ","ũ","ã"}
+_MARG = {"ɛ̃"}
+_DIA = {"ʊ","ɪ"}
+_PAUS = {"/","|","||"}
+_TONE = {"˥","˧","˩"}
 
 @dataclass
 class YorubaInventoryOptions:
@@ -136,9 +136,9 @@ class YorubaInventoryOptions:
 
 def yoruba_inventory(opts: YorubaInventoryOptions | None = None) -> list[str]:
     opts = opts or YorubaInventoryOptions()
-    inv = set(_CONS) | set(_VOW)
+    inv = _CONS | _VOW
     if opts.marginal: inv |= _MARG
     if opts.dialectal: inv |= _DIA
     if opts.pauses: inv |= _PAUS
-    if opts.tones: inv |= TONE
+    if opts.tones: inv |= _TONE
     return sorted(inv)

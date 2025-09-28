@@ -105,6 +105,8 @@ def english_to_ipa(
                 expanded.append(t)
         toks = expanded
         timit_to_ipa["a"] = "a"
+        timit_to_ipa["e"] = "e"
+        timit_to_ipa["o"] = "o"
 
     out: list[str] = []
     for t in toks:

@@ -13,13 +13,20 @@ Vec = np.ndarray  # feature vector of shape (F) in {-1,0,1}
 
 
 @dataclass
-class CostModel(ndim: int):
-    sub_weights: np.ndarray = field(default_factory=lambda: np.ones(ndim, dtype=np.float32))
-    del_mult: np.ndarray = field(default_factory=lambda: np.ones(ndim, dtype=np.float32))
-    ins_mult: np.ndarray = field(default_factory=lambda: np.ones(ndim, dtype=np.float32))
+class CostModel:
+    ndim: int
+    sub_weights: np.ndarray = field(init=False)
+    del_mult: np.ndarray = field(init=False)
+    ins_mult: np.ndarray = field(init=False)
     del_base: float = 1.0
     ins_base: float = 1.0
-    normalize_sub: bool = None
+    normalize: bool | None = None
+
+    def __post_init__(self):
+        mk = lambda: np.ones(self.ndim, np.float32)
+        self.sub_weights = mk()
+        self.del_mult = mk()
+        self.ins_mult = mk()
 
 @dataclass
 class CostTables:
@@ -103,7 +110,7 @@ class AlignResult:
         for a, b in self.alignment:
             print(f"{a:5} → {b:5}")
         if total > 0:
-            print(f"Score (norm by gold length): {round(self.distance / total, 4)}")
+            print(f"PER: {round(self.distance / total, 4)}")
 
 
 class FastAligner:
@@ -114,7 +121,7 @@ class FastAligner:
         self.pred_feats: dict[Symbol, Vec] = {}
         self.gold_feats: dict[Symbol, Vec] = {}
         self.ndim: int = 19
-        self.cm: CostModel = CostModel(self.ndim)
+        self.cm: CostModel = CostModel(ndim=self.ndim)
         self.tables: Optional[CostTables] = None
 
     def set_alphabets(self, pred_alphabet: Sequence[Symbol] | str, gold_alphabet: Sequence[Symbol] | str):
@@ -160,7 +167,7 @@ class FastAligner:
 
         def _get_vec(p: str) -> np.ndarray:
             v = ft.word_fts(p)
-            assert v == 1, f"'{p}' is not a single phone"
+            assert len(v) == 1, f"'{p}' is not a single phone"
             v = np.asarray(v[0].numeric(), dtype=np.int8)
             if drop_idx:
                 v = np.delete(v, drop_idx)
@@ -174,12 +181,13 @@ class FastAligner:
 
     def set_cost_model(self, cm: CostModel):
         self.cm = cm
+        self.cm.ndim = self.ndim
         return self
 
     def build_tables(self):
         assert self.pred_alphabet and self.gold_alphabet, "alphabets not set"
         assert self.pred_feats and self.gold_feats, "feature maps not set"
-        self.tables = build_cost_tables(self.pred_alphabet, self.gold_alphabet, self.pred_feats, self.gold_feats, self.cm)
+        self.tables = _build_cost_tables(self.pred_alphabet, self.gold_alphabet, self.pred_feats, self.gold_feats, self.cm)
         return self
 
 
@@ -256,5 +264,5 @@ class FastAligner:
         for p, g in zip(predicted_sents, golden_sents):
             res = self.align(p, g, empty=empty)
             rows.append({"Model_pred": p, "Yoruba_label": g, "Alignment": res.alignment,
-                         "Distance": res.distance, "Score": res.distance / len(res.tgt)})
+                         "Distance": res.distance, "Score": res.distance / len(res.tgt), "All": res})
         return pd.DataFrame(rows)
