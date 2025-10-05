@@ -197,7 +197,7 @@ class Embeddings_Collect():
         predictions = []
         embeddings_list = []
         #Add tqdm maybe
-        for i, j in tqdm(zip(self.mfccs[0:500], self.labels_processed[0:500]), total=len(self.mfccs[0:500])):
+        for i, j in tqdm(zip(self.mfccs, self.labels_processed), total=len(self.mfccs)):
             with torch.no_grad():
                 feats = torch.unsqueeze(i,0)
                 logits = self.model(feats)
@@ -218,7 +218,7 @@ class Embeddings_Collect():
         """
         vowel_embeddings_dict = defaultdict(list,{ k:[] for k in self.vowels_dict.values() })
 
-        for p, l, embedding in  tqdm(zip(self.predictions[0:500], self.labels_processed[0:500], self.embeddings_list[0:500]), total = len(self.embeddings_list[0:500])):
+        for p, l, embedding in  tqdm(zip(self.predictions, self.labels_processed, self.embeddings_list), total = len(self.embeddings_list)):
           
             if self.dataset_name == "Timit":
                 l = " ".join(l)
@@ -472,13 +472,13 @@ def get_feature_weights_eng():
 eng_feature_weights = get_feature_weights_eng()
     
 
-emb = Embeddings_Collect("Yoruba", model=model)
+emb = Embeddings_Collect("Timit", model=model)
 
 emb.collect_embeddings()
 
 embeddings = emb.embeddings_per_wowel()
 
-plotting = PPGPlot(vowel_embeddings=embeddings, dataset_name="Yoruba", selected_vowels=[])
+plotting = PPGPlot(vowel_embeddings=embeddings, dataset_name="Timit", selected_vowels=[])
 vowel_df_yor = plotting.get_vowel_df()
 umap_yor = plotting.apply_umap(vowel_df_yor)
 euclidian =plotting.get_euclidian_distance(umap_yor, closest=False)
@@ -550,40 +550,41 @@ def clean_dict_correlation(yor, preds):
     assert len(eucl_final) == len(yor_gold)
     perm = stats.PermutationMethod()
     res = stats.pearsonr(list(eucl_final.values()), list(yor_gold.values()), method = perm)
-    return res
+    
+    return eucl_final, yor_gold, res
     
 
 
 yor_feature_edit = get_feature_weights_yor()
-predicted_eucl, gold_ft = clean_dict_correlation(yor_feature_edit, euclidian)
+eng_feature_edit = get_feature_weights_eng()
+predicted_eucl, gold_ft, res = clean_dict_correlation(eng_feature_edit, euclidian)
 
-res = stats.pearsonr(predicted_eucl.values(), gold_ft.values())
-print("Results of correlation test")
-print(res)
+
 
     
+MAGENTA = "#5E7DC0"
+DARK_BLUE = "#120B91"
 
-emb_timit = Embeddings_Collect("Timit", model= model)
-emb_timit.collect_embeddings()
-preds=emb_timit.embeddings_per_wowel()
+x_vals = list(predicted_eucl.values())
+y_vals = list(gold_ft.values())
 
+x = np.fromiter(predicted_eucl.values(), float)
+y = np.fromiter(gold_ft.values(), float)
+assert x.size and y.size and x.size == y.size, "x/y empty or mismatched"
 
-plotting = PPGPlot(vowel_embeddings=preds, dataset_name="Timit", selected_vowels=[])
-timit_embeddings =plotting.get_vowel_df()
+rng = np.random.default_rng(42)
+jx = x + rng.normal(0, 0.01 * (np.ptp(x) + 1e-9), x.size)
+jy = y + rng.normal(0, 0.01 * (np.ptp(y) + 1e-9), y.size)
 
-
-timit_embeddings.reset_index(drop=True, inplace=True)
-vowel_df_yor.reset_index(drop=True, inplace=True)
-
-all_embeddings = pd.concat([timit_embeddings,vowel_df_yor], ignore_index=True)
-languages = ["English"] * timit_embeddings.shape[0] + ["Yoruba"] * vowel_df_yor.shape[0]
-
-all_embeddings["Language"] = pd.Series(languages).reset_index(drop=True)
-def apply_prefix(df):
-    if df["Language"] == "English":
-        df["Vowel"] ="eng_"+ df["Vowel"]
-        return df
-    elif df["Language"] == "Yoruba":
-        df["Vowel"] ="yor_"+ df["Vowel"]
-        return df
-
+sns.set_theme(style="white")
+plt.figure(figsize=(6.5, 4.2))
+ax = sns.regplot(
+    x=jx, y=jy, ci=None,
+    scatter_kws=dict(s=60, alpha=.8, facecolors="none", edgecolors=MAGENTA, linewidths=1.8),
+    line_kws=dict(color=DARK_BLUE, linewidth=2.4),
+)
+ax.set(title="Euclid vs. Weighted Hamming (Yoruba)", xlabel="Euclidean distance", ylabel="Weighted Hamming distance")
+sns.despine()
+plt.tight_layout()
+plt.show()
+print(res)
