@@ -1,4 +1,4 @@
-This is LuaTeX, Version 1.06.2 (MiKTeX 2.9.6530 64-bit)  (format=lualatex 2025.2.8)  7 OCT 2025 01:05
+This is LuaTeX, Version 1.06.2 (MiKTeX 2.9.6530 64-bit)  (format=lualatex 2025.2.8)  7 OCT 2025 19:14
  restricted system commands enabled.
 **acl2023.tex
 (./acl2023.tex
@@ -33,7 +33,7 @@ Inserting `luaotfload.aux.set_capheight' at position 3 in `luaotfload.patch_font
 '.
 Inserting `luaotfload.rewrite_fontname' at position 4 in `luaotfload.patch_font'
 .
-luaotfload | main : initialization completed in 0.655 seconds
+luaotfload | main : initialization completed in 0.708 seconds
 Babel <3.16> and hyphenation patterns for 1 language(s) loaded.
 ("C:/Program Files/MiKTeX 2.9/tex/latex/base/article.cls"
 Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
@@ -978,6 +978,12 @@ LaTeX Warning: Label `fig:placeholder' multiply defined.
 
 LaTeX Warning: Label `fig:placeholder' multiply defined.
 
+
+LaTeX Warning: Label `fig:placeholder' multiply defined.
+
+
+LaTeX Warning: Label `fig:placeholder' multiply defined.
+
 )
 \openout1 = acl2023.aux
 
@@ -1228,45 +1234,73 @@ Underfull \hbox (badness 4995) in paragraph at lines 60--61
 
 
 warning  (font expansion): autoexpand not supported
-[1{C:/Users/Kit/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}
+
+Package natbib Warning: Citation `Adesola2024' on page 1 undefined on input line
+ 71.
+
+
+Package natbib Warning: Citation `AhiaEtAl2024' on page 1 undefined on input lin
+e 71.
+
+
+Package natbib Warning: Citation `moran2014' on page 1 undefined on input line 7
+1.
+
+
+Package natbib Warning: Citation `vanderhulst2017' on page 1 undefined on input 
+line 71.
+
+
+Package natbib Warning: Citation `maddieson2010' on page 1 undefined on input li
+ne 71.
+
+("C:/Program Files/MiKTeX 2.9/tex/latex/microtype/mt-CharisSIL.cfg"
+File: mt-CharisSIL.cfg 2017/07/07 v1.1 microtype config. file: Charis SIL (RS)
+) [1{C:/Users/Kit/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}
 
 
 
 Missing character: There is no ’ (U+2019) in font ptmr8t!
 ]
 
+Package natbib Warning: Citation `moran2014' on page 2 undefined on input line 7
+6.
+
+
+Package natbib Warning: Citation `mortensen2016' on page 2 undefined on input li
+ne 76.
+
+
 Package natbib Warning: Citation `garofolo1993timit' on page 2 undefined on inpu
-t line 75.
+t line 79.
 
 
-Package natbib Warning: Citation `cmudict' on page 2 undefined on input line 75.
+Package natbib Warning: Citation `cmudict' on page 2 undefined on input line 79.
 
 
-("C:/Program Files/MiKTeX 2.9/tex/latex/microtype/mt-CharisSIL.cfg"
-File: mt-CharisSIL.cfg 2017/07/07 v1.1 microtype config. file: Charis SIL (RS)
-)
 
 Package natbib Warning: Citation `Adesola2024' on page 2 undefined on input line
- 77.
+ 81.
 
 
 Package natbib Warning: Citation `Przezdziecki2005' on page 2 undefined on input
- line 77.
+ line 81.
+
+[2]
+
+Package natbib Warning: Citation `Ardila2020' on page 3 undefined on input line 
+83.
 
 
-Package natbib Warning: Citation `Ardila2020' on page 2 undefined on input line 
-79.
+Package natbib Warning: Citation `AhiaEtAl2024' on page 3 undefined on input lin
+e 83.
 
-
-Package natbib Warning: Citation `AhiaEtAl2024' on page 2 undefined on input lin
-e 79.
-
-LaTeX Font Info:    Try loading font information for T1+zi4 on input line 81.
+LaTeX Font Info:    Try loading font information for T1+zi4 on input line 85.
 ("C:/Program Files/MiKTeX 2.9/tex/latex/inconsolata/t1zi4.fd"
 File: t1zi4.fd 2016/12/29 T1/zi4 (Inconsolata)
 )
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 10.95pt on input line 81.
+(Font)              scaled to size 10.95pt on input line 85.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `zi4' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
@@ -1279,182 +1313,171 @@ Package microtype Info: Character `textemdash ' is missing
 (microtype)             Ignoring protrusion settings for this character.
 
 
-Package natbib Warning: Citation `Przezdziecki2005' on page 2 undefined on input
- line 81.
+Package natbib Warning: Citation `Przezdziecki2005' on page 3 undefined on input
+ line 85.
 
 
-Package natbib Warning: Citation `AllenPulleyblankAjiboye2013' on page 2 undefin
-ed on input line 81.
+Package natbib Warning: Citation `AllenPulleyblankAjiboye2013' on page 3 undefin
+ed on input line 85.
 
-[2
-Missing character: There is no ы (U+044B) in font ptmr8t!
-]
 
 Package natbib Warning: Citation `dhakal2022automatic' on page 3 undefined on in
-put line 85.
+put line 89.
 
 
 Package natbib Warning: Citation `ravanelli2019speakerrecognitionrawwaveform' on
- page 3 undefined on input line 87.
+ page 3 undefined on input line 91.
 
 
 Package natbib Warning: Citation `dhakal2022automatic' on page 3 undefined on in
-put line 87.
+put line 91.
 
 
 Package natbib Warning: Citation `dhakal2022automatic' on page 3 undefined on in
-put line 87.
+put line 91.
 
 
 Package natbib Warning: Citation `dhakal2022automatic' on page 3 undefined on in
-put line 87.
+put line 91.
 
 
 Package natbib Warning: Citation `dhakal2022automatic' on page 3 undefined on in
-put line 89.
+put line 93.
 
 
 Package natbib Warning: Citation `dhakal2022automatic' on page 3 undefined on in
-put line 89.
+put line 93.
 
 
 Package natbib Warning: Citation `dhakal2022automatic' on page 3 undefined on in
-put line 89.
+put line 93.
 
-<modelarchitecture+.png, id=33, 407.72325pt x 325.81725pt>
+<modelarchitecture+.png, id=31, 407.72325pt x 325.81725pt>
 File: modelarchitecture+.png Graphic file (type png)
 <use modelarchitecture+.png>
-Package luatex.def Info: modelarchitecture+.png  used on input line 93.
+Package luatex.def Info: modelarchitecture+.png  used on input line 97.
 (luatex.def)             Requested size: 219.08614pt x 175.07362pt.
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <10> not available
-(Font)              Font shape `T1/ptm/b/n' tried instead on input line 94.
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 98.
 
 Package natbib Warning: Citation `dhakal2022automatic' on page 3 undefined on in
-put line 94.
-
-
-Package natbib Warning: Citation `dhakal2022automatic' on page 3 undefined on in
-put line 94.
-
-<residualblock.PNG, id=34, 456.5055pt x 242.1045pt>
-File: residualblock.PNG Graphic file (type png)
-<use residualblock.PNG>
-Package luatex.def Info: residualblock.PNG  used on input line 101.
-(luatex.def)             Requested size: 219.08614pt x 116.19037pt.
-
-Package natbib Warning: Citation `dhakal2022automatic' on page 3 undefined on in
-put line 102.
+put line 98.
 
 
 Package natbib Warning: Citation `dhakal2022automatic' on page 3 undefined on in
-put line 102.
+put line 98.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [3]
+<residualblock.PNG, id=43, 456.5055pt x 242.1045pt>
+File: residualblock.PNG Graphic file (type png)
+<use residualblock.PNG>
+Package luatex.def Info: residualblock.PNG  used on input line 105.
+(luatex.def)             Requested size: 219.08614pt x 116.19037pt.
+
+
+Package natbib Warning: Citation `dhakal2022automatic' on page 4 undefined on in
+put line 106.
+
+
+Package natbib Warning: Citation `dhakal2022automatic' on page 4 undefined on in
+put line 106.
+
 <model_per_distribution.png, id=44, 570.2103pt x 426.393pt>
 File: model_per_distribution.png Graphic file (type png)
 <use model_per_distribution.png>
-Package luatex.def Info: model_per_distribution.png  used on input line 128.
+Package luatex.def Info: model_per_distribution.png  used on input line 132.
 (luatex.def)             Requested size: 164.31459pt x 122.87006pt.
-
 [4<./modelarchitecture+.png><./residualblock.PNG>]
 <nulligram_PER_distribution.png, id=64, 570.2103pt x 426.393pt>
 File: nulligram_PER_distribution.png Graphic file (type png)
 <use nulligram_PER_distribution.png>
-Package luatex.def Info: nulligram_PER_distribution.png  used on input line 140.
+Package luatex.def Info: nulligram_PER_distribution.png  used on input line 143.
 
 (luatex.def)             Requested size: 164.31459pt x 122.87006pt.
 <unigram_PER_distribution.png, id=65, 570.2103pt x 426.393pt>
 File: unigram_PER_distribution.png Graphic file (type png)
 <use unigram_PER_distribution.png>
-Package luatex.def Info: unigram_PER_distribution.png  used on input line 149.
+Package luatex.def Info: unigram_PER_distribution.png  used on input line 152.
 (luatex.def)             Requested size: 164.31459pt x 122.87006pt.
  [5<./model_per_distribution.png><./nulligram_PER_distribution.png><./unigram_PE
 R_distribution.png>]
 <EngYorConfusionMatrix.png, id=79, 871.5762pt x 824.6007pt>
 File: EngYorConfusionMatrix.png Graphic file (type png)
 <use EngYorConfusionMatrix.png>
-Package luatex.def Info: EngYorConfusionMatrix.png  used on input line 168.
+Package luatex.def Info: EngYorConfusionMatrix.png  used on input line 181.
 (luatex.def)             Requested size: 219.08614pt x 207.2695pt.
 <YorPhonemeFrequency.png, id=80, 859.2903pt x 426.393pt>
 File: YorPhonemeFrequency.png Graphic file (type png)
 <use YorPhonemeFrequency.png>
-Package luatex.def Info: YorPhonemeFrequency.png  used on input line 176.
+Package luatex.def Info: YorPhonemeFrequency.png  used on input line 189.
 (luatex.def)             Requested size: 219.08614pt x 108.71251pt.
 <NormalisedPMI.png, id=81, 828.9369pt x 860.013pt>
 File: NormalisedPMI.png Graphic file (type png)
 <use NormalisedPMI.png>
-Package luatex.def Info: NormalisedPMI.png  used on input line 186.
+Package luatex.def Info: NormalisedPMI.png  used on input line 199.
 (luatex.def)             Requested size: 219.08614pt x 227.2987pt.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<Timit_embeddings.png, id=82, 1117.17375pt x 320.19624pt>
-File: Timit_embeddings.png Graphic file (type png)
-<use Timit_embeddings.png>
-Package luatex.def Info: Timit_embeddings.png  used on input line 235.
-(luatex.def)             Requested size: 219.08614pt x 62.79222pt.
-<yoruba_eng_plot.png, id=83, 578.16pt x 433.62pt>
+<timitultphone.png, id=82, 301.125pt x 106.89937pt>
+File: timitultphone.png Graphic file (type png)
+<use timitultphone.png>
+Package luatex.def Info: timitultphone.png  used on input line 248.
+(luatex.def)             Requested size: 219.08614pt x 77.77815pt.
+<yorlast.png, id=83, 301.125pt x 156.08313pt>
+File: yorlast.png Graphic file (type png)
+<use yorlast.png>
+Package luatex.def Info: yorlast.png  used on input line 255.
+(luatex.def)             Requested size: 219.08614pt x 113.56342pt.
+<yoruba_eng_plot.png, id=84, 578.16pt x 433.62pt>
 File: yoruba_eng_plot.png Graphic file (type png)
 <use yoruba_eng_plot.png>
-Package luatex.def Info: yoruba_eng_plot.png  used on input line 242.
+Package luatex.def Info: yoruba_eng_plot.png  used on input line 262.
 (luatex.def)             Requested size: 219.08614pt x 164.31415pt.
 
-Underfull \hbox (badness 1264) in paragraph at lines 243--243
-[]\T1/ptm/m/n/10 Fig-ure 10: |Vowel dis-tances be-tween En-glish and
+Underfull \hbox (badness 1264) in paragraph at lines 263--263
+[]\T1/ptm/m/n/10 Fig-ure 11: |Vowel dis-tances be-tween En-glish and
  []
 
-<engcor.png, id=84, 469.755pt x 303.534pt>
-File: engcor.png Graphic file (type png)
-<use engcor.png>
-Package luatex.def Info: engcor.png  used on input line 249.
+<timitcor.png, id=85, 469.755pt x 303.534pt>
+File: timitcor.png Graphic file (type png)
+<use timitcor.png>
+Package luatex.def Info: timitcor.png  used on input line 269.
 (luatex.def)             Requested size: 219.08614pt x 141.56331pt.
-<yorcor.png, id=85, 469.755pt x 303.534pt>
-File: yorcor.png Graphic file (type png)
-<use yorcor.png>
-Package luatex.def Info: yorcor.png  used on input line 256.
+<yorlastcor.png, id=86, 469.755pt x 303.534pt>
+File: yorlastcor.png Graphic file (type png)
+<use yorlastcor.png>
+Package luatex.def Info: yorlastcor.png  used on input line 276.
 (luatex.def)             Requested size: 219.08614pt x 141.56331pt.
 
-Overfull \hbox (20.17741pt too wide) in paragraph at lines 264--272
+Overfull \hbox (20.17741pt too wide) in paragraph at lines 284--292
  [][] 
  []
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-LaTeX Font Info:    Try loading font information for T3+ptm on input line 283.
-("C:/Program Files/MiKTeX 2.9/tex/latex/tipa/t3ptm.fd"
-File: t3ptm.fd 2001/12/31 TIPA font definitions
-)
-luaotfload | db : Reload initiated (formats: otf,ttf,ttc); reason: "Font xipa10 
-not found.".
-luaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.
-! Font \T3/ptm/m/n/10.95=xipa10 at 10.95pt not loadable: metric data not found o
-r bad.
-<to be read again> 
-relax 
-l.283 \textipa{a}
-                & 5.193 \\
-? 
-<Yoruba_Embeddings.png, id=86, 870.25125pt x 385.44pt>
+<Yoruba_Embeddings.png, id=87, 870.25125pt x 385.44pt>
 File: Yoruba_Embeddings.png Graphic file (type png)
 <use Yoruba_Embeddings.png>
-Package luatex.def Info: Yoruba_Embeddings.png  used on input line 311.
+Package luatex.def Info: Yoruba_Embeddings.png  used on input line 331.
 (luatex.def)             Requested size: 219.08614pt x 97.0361pt.
 File: yoruba_eng_plot.png Graphic file (type png)
 <use yoruba_eng_plot.png>
-Package luatex.def Info: yoruba_eng_plot.png  used on input line 318.
+Package luatex.def Info: yoruba_eng_plot.png  used on input line 338.
 (luatex.def)             Requested size: 219.08614pt x 164.31415pt.
-[6<./EngYorConfusionMatrix.png><./YorPhonemeFrequency.png><./NormalisedPMI.png><
-./Timit_embeddings.png>]
+[6<./EngYorConfusionMatrix.png><./YorPhonemeFrequency.png>] [7<./NormalisedPMI.p
+ng><./timitultphone.png><./yorlast.png><./yoruba_eng_plot.png><./timitcor.png><.
+/yorlastcor.png>]
 No file acl2023.bbl.
 LaTeX Font Info:    Font shape `T1/zi4/bx/n' in size <10.95> not available
-(Font)              Font shape `T1/zi4/b/n' tried instead on input line 347.
+(Font)              Font shape `T1/zi4/b/n' tried instead on input line 367.
 LaTeX Font Info:    Font shape `T1/zi4/b/n' will be
-(Font)              scaled to size 10.95pt on input line 347.
+(Font)              scaled to size 10.95pt on input line 367.
 Package microtype Info: Character `textendash ' is missing
 (microtype)             in font `T1/zi4/b/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
@@ -1462,14 +1485,14 @@ Package microtype Info: Character `textemdash ' is missing
 (microtype)             in font `T1/zi4/b/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
 
-LaTeX Warning: Float too large for page by 203.21071pt on input line 414.
+LaTeX Warning: Float too large for page by 203.21071pt on input line 434.
 
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 LaTeX Font Info:    Font shape `T1/ptm/bx/it' in size <10.95> not available
-(Font)              Font shape `T1/ptm/b/it' tried instead on input line 423.
-LaTeX Font Info:    Try loading font information for TS1+ptm on input line 448.
+(Font)              Font shape `T1/ptm/b/it' tried instead on input line 443.
+LaTeX Font Info:    Try loading font information for TS1+ptm on input line 468.
 ("C:/Program Files/MiKTeX 2.9/tex/latex/psnfss/ts1ptm.fd"
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
@@ -1479,38 +1502,19 @@ LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 Package natbib Warning: There were undefined citations.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 469.
-[7<./yoruba_eng_plot.png><./engcor.png><./yorcor.png><./Yoruba_Embeddings.png>]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 489.
 [8
-Missing character: There is no a (U+0061) in font nullfont!
-Missing character: There is no l (U+006C) in font nullfont!
-Missing character: There is no t (U+0074) in font nullfont!
-Missing character: There is no f (U+0066) in font nullfont!
-Missing character: There is no w (U+0077) in font nullfont!
-Missing character: There is no i (U+0069) in font nullfont!
-Missing character: There is no E (U+0045) in font nullfont!
-Missing character: There is no S (U+0053) in font nullfont!
-Missing character: There is no d (U+0064) in font nullfont!
-Missing character: There is no n (U+006E) in font nullfont!
-Missing character: There is no o (U+006F) in font nullfont!
-Missing character: There is no O (U+004F) in font nullfont!
-Missing character: There is no k (U+006B) in font nullfont!
-Missing character: There is no s (U+0073) in font nullfont!
-Missing character: There is no j (U+006A) in font nullfont!
-Missing character: There is no e (U+0065) in font nullfont!
-Missing character: There is no h (U+0068) in font nullfont!
-Missing character: There is no U (U+0055) in font nullfont!
-Missing character: There is no b (U+0062) in font nullfont!
-Missing character: There is no g (U+0067) in font nullfont!
-Missing character: There is no m (U+006D) in font nullfont!
-Missing character: There is no u (U+0075) in font nullfont!
-] [9
+Missing character: There is no ɡ (U+0261) in font ptmr8t!
+Missing character: There is no ɔ (U+0254) in font ptmr8t!
+Missing character: There is no ɛ (U+025B) in font ptmr8t!
+Missing character: There is no ʃ (U+0283) in font ptmr8t!
+<./Yoruba_Embeddings.png>] [9] [10
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 469.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 489.
  (./acl2023.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 469.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 469.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 489.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 489.
 Package rerunfilecheck Info: File `acl2023.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
 
@@ -1520,23 +1524,23 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 469.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 489.
 )
 (\end occurred inside a group at level 1)
 
-### simple group (level 1) entered at line 81 ({)
+### simple group (level 1) entered at line 85 ({)
 ### bottom level
 
 Here is how much of LuaTeX's memory you used:
- 21840 strings out of 494445
+ 21830 strings out of 494445
  100000,662416 words of node,token memory allocated
- 1612 words of node memory still in use:
-   6 hlist, 2 vlist, 2 rule, 2 glue, 175 kern, 64 attribute, 62 glue_spec, 64 at
+ 1719 words of node memory still in use:
+   6 hlist, 2 vlist, 2 rule, 2 glue, 190 kern, 72 attribute, 62 glue_spec, 72 at
 tribute_list, 1 write nodes
-   avail lists: 2:2970,3:208,4:91,5:147,6:44,7:6893,8:244,9:778,10:17,11:470
- 25165 multiletter control sequences out of 65536+200000
- 87 fonts using 17276615 bytes
- 42i,12n,77p,2007b,511s stack positions out of 5000i,500n,10000p,200000b,50000s
+   avail lists: 2:2793,3:235,4:105,5:169,6:49,7:6840,8:264,9:826,10:17,11:472
+ 25157 multiletter control sequences out of 65536+200000
+ 87 fonts using 17276303 bytes
+ 42i,12n,77p,2121b,511s stack positions out of 5000i,500n,10000p,200000b,50000s
 {C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/base/8r.enc}<C:/WINDOWS/Fonts/chari
 ssil-b.ttf>{C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/inconsolata/i4-t1-0.enc}
 <c:/program files/miktex 2.9/fonts/opentype/public/lm/lmroman10-regular.otf><C:/
@@ -1554,9 +1558,9 @@ iKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files/MiKTeX 2.9/
 fonts/type1/urw/times/utmb8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/ti
 mes/utmbi8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmr8a.pfb><C
 :/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on acl2023.pdf (9 pages, 1472607 bytes).
+Output written on acl2023.pdf (10 pages, 1402796 bytes).
 
-PDF statistics: 208 PDF objects out of 1000 (max. 8388607)
- 51 named destinations out of 1000 (max. 131072)
+PDF statistics: 215 PDF objects out of 1000 (max. 8388607)
+ 53 named destinations out of 1000 (max. 131072)
  1 words of extra memory for PDF output out of 10000 (max. 100000000)
 
