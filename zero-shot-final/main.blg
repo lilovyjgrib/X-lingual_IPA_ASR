@@ -1,0 +1,8 @@
+This is BibTeX, Version 0.99dThe top-level auxiliary file: main.aux
+I couldn't open style file acl_natbib.bst
+---line 63 of file main.aux
+ : \bibstyle{acl_natbib
+ :                     }
+I'm skipping whatever remains of this command
+I found no style file---while reading file main.aux
+(There were 2 error messages)
