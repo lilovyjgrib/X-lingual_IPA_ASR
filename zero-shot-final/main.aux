@@ -16,28 +16,41 @@
 \gdef\HyperFirstAtBeginDocument#1{#1}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{xu2021}
+\citation{radford2022whisper}
+\citation{yadav2022survey}
+\citation{radford2022whisper}
+\citation{xu2021}
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\newlabel{sec:background}{{1.1}{1}{Background}{subsection.1.1}{}}
 \citation{hayes2009}
 \citation{ladefoged2011}
-\citation{xu2021}
-\citation{Adesola2024}
-\citation{AhiaEtAl2024}
-\citation{moran2014}
-\citation{vanderhulst2017}
-\citation{maddieson2010}
-\citation{Przezdziecki2005}
+\citation{Adesola2024,moran2014,Akinbo2022}
 \citation{chomsky1968}
+\citation{jaeger2013}
 \citation{nerbonne2010}
 \citation{moran2014}
 \citation{rubehn2024}
 \citation{mortensen2016}
+\citation{vanderhulst2017}
+\citation{moran2014}
+\citation{AllenPulleyblankAjiboye2013}
+\citation{mortensen2016}
+\citation{LadefogedMaddieson1996,Przezdziecki2005}
+\citation{Przezdziecki2005}
+\citation{maddieson2010}
+\citation{Przezdziecki2005,AllenPulleyblankAjiboye2013,Akinbo2022}
+\newlabel{sec:hypo}{{1.3}{2}{Possible disruptors of English to Yoruba transfer}{subsection.1.3}{}}
 \citation{garofolo1993timit}
 \citation{cmudict}
 \citation{Adesola2024}
 \citation{Przezdziecki2005}
 \citation{Ardila2020}
 \citation{AhiaEtAl2024}
+\citation{epitran}
+\citation{AllenPulleyblankAjiboye2013,Akinbo2022}
 \citation{Przezdziecki2005}
-\citation{AllenPulleyblankAjiboye2013}
+\newlabel{sec:dataset}{{2}{3}{Dataset}{section.2}{}}
 \citation{dhakal2022automatic}
 \citation{xu2021}
 \citation{ravanelli2019speakerrecognitionrawwaveform}
@@ -50,22 +63,85 @@
 \citation{dhakal2022automatic}
 \citation{dhakal2022automatic}
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:architecture}{{1}{4}{Left: model architecture of \cite {dhakal2022automatic} , Right: Adjusted model architecture for English-Yoruba cross-lingual phoneme recognition. Changes highlighted with a red circle.\relax }{figure.caption.5}{}}
-\newlabel{fig:residualblock}{{2}{4}{Left: residual block of \cite {dhakal2022automatic}, Right: Adjusted residual block for English-Yoruba cross-lingual phoneme recognition. Changes highlighted with a red circle.\relax }{figure.caption.6}{}}
-\newlabel{fig:placeholder}{{3}{5}{English-Yoruba Confusion Matrix with Posterior Probability\relax }{figure.caption.8}{}}
-\newlabel{fig:placeholder}{{4}{7}{PER Distribution\relax }{figure.caption.9}{}}
-\newlabel{fig:placeholder}{{5}{7}{Equal probability PER Distribution\relax }{figure.caption.10}{}}
-\newlabel{fig:placeholder}{{6}{7}{Unigram PER Distribution\relax }{figure.caption.11}{}}
-\newlabel{fig:placeholder}{{7}{7}{Yoruba Phoneme Frequency\relax }{figure.caption.12}{}}
-\newlabel{fig:placeholder}{{8}{7}{Normalized PMI\relax }{figure.caption.13}{}}
-\newlabel{fig:placeholder}{{9}{7}{Timit Phone Embeddings\relax }{figure.caption.15}{}}
-\newlabel{fig:placeholder}{{10}{7}{Yoruba Phone Embeddings\relax }{figure.caption.16}{}}
+\newlabel{fig:architecture}{{1}{4}{Left: model architecture of \cite {dhakal2022automatic} , Right: Adjusted model architecture for English-Yoruba cross-lingual phoneme recognition. Changes highlighted with a red circle.\relax }{figure.caption.6}{}}
+\newlabel{fig:residualblock}{{2}{4}{Left: residual block of \cite {dhakal2022automatic}, Right: Adjusted residual block for English-Yoruba cross-lingual phoneme recognition. Changes highlighted with a red circle.\relax }{figure.caption.7}{}}
+\citation{hannun2017}
+\newlabel{sec:inference}{{4.2}{5}{Inference}{subsection.4.2}{}}
+\citation{Bentz2022}
+\citation{hayes2009,ladefoged2011}
+\newlabel{fig:postconf}{{3}{6}{English-Yoruba Confusion Matrix with Posterior Probability\relax }{figure.caption.9}{}}
+\newlabel{sec:entropy}{{4.3}{6}{Performance by phoneme}{subsection.4.3}{}}
+\newlabel{table:confusionent}{{1}{7}{Confusion entropy, empirical and theoretical (feature-based) correspondences.\relax }{table.caption.11}{}}
+\newlabel{table:entfreq}{{2}{7}{Mapping entropy and frequentmost correspondences.\relax }{table.caption.13}{}}
+\citation{umap}
+\citation{umapClustering}
+\citation{hayes2009}
+\newlabel{fig:ppg}{{4}{8}{Phone posteriograms for one Yoruba sentence, after softmax, first 14 classes\relax }{figure.caption.15}{}}
+\newlabel{fig:yoremb}{{5}{8}{Yoruba Phone Embeddings (with English correspondences only)\relax }{figure.caption.17}{}}
+\newlabel{fig:timitemb}{{6}{8}{Timit Phone Embeddings\relax }{figure.caption.19}{}}
+\citation{jurafsky2023}
+\citation{jaeger2013}
+\citation{bentz2018}
+\newlabel{fig:correng}{{7}{9}{Correlation between Euclidian distance of embeddings and Weighted Hamming distance (English). (Scatter: phone tokens in the subsample, jittered)\relax }{figure.caption.22}{}}
+\newlabel{sec:pmi}{{5.1}{9}{Closer look on confusion and correspondence patterns}{subsection.5.1}{}}
+\newlabel{fig:corryor}{{8}{9}{Correlation between Euclidian distance of embeddings and Weighted Hamming distance (Yoruba). (Scatter: phone tokens in the subsample, jittered)\relax }{figure.caption.23}{}}
+\citation{AllenPulleyblankAjiboye2013,Adesola2024,Akinbo2022,Przezdziecki2005}
+\citation{nerbonne2010}
+\citation{jaeger2013}
+\newlabel{fig:normpmi}{{9}{10}{Normalized PMI. Turquoise denotes the encoding efficiency gain from aligning, magenta denotes the gain from not aligning. Grey stands for the alignments that have never occurred (we can assume negative values).\relax }{figure.caption.25}{}}
+\newlabel{fig:perdist}{{10}{11}{PER Distribution\relax }{figure.caption.27}{}}
+\newlabel{fig:nulliprob}{{11}{11}{Equal probability PER Distribution\relax }{figure.caption.28}{}}
+\newlabel{fig:uniprob}{{12}{11}{Unigram PER Distribution\relax }{figure.caption.29}{}}
+\citation{xu2021}
 \bibstyle{acl_natbib}
 \bibdata{main}
-\newlabel{fig:placeholder}{{11}{8}{Vowel distances between English and Yoruba\relax }{figure.caption.17}{}}
-\newlabel{fig:placeholder}{{12}{8}{Correlation between Euclidian distance of embeddings and Weighted Hamming distance (English)\relax }{figure.caption.18}{}}
-\newlabel{fig:placeholder}{{13}{8}{Correlation between Euclidian distance of embeddings and Weighted Hamming distance (Yoruba)\relax }{figure.caption.19}{}}
-\newlabel{sec:appendix}{{A}{9}{Appendix}{appendix.A}{}}
-\newlabel{sec:appendixb}{{A.2}{9}{Appendix. B}{subsection.A.2}{}}
-\newlabel{fig:placeholder}{{14}{9}{Yoruba Phone Embeddings\relax }{figure.caption.22}{}}
-\newlabel{fig:placeholder}{{15}{9}{Yoruba and English embeddings plotted in the same space\relax }{figure.caption.23}{}}
+\bibcite{Adesola2024}{{1}{2006}{{Adesola}}{{}}}
+\bibcite{AhiaEtAl2024}{{2}{2024}{{Ahia et~al.}}{{Ahia, Aremu, Abagyan, Gonen, Adelani, Abolade, Smith, and Tsvetkov}}}
+\newlabel{fig:biprob}{{13}{12}{Bigram PER Distribution\relax }{figure.caption.30}{}}
+\newlabel{sec:limitation}{{6}{12}{Limitations}{section.6}{}}
+\bibcite{Akinbo2022}{{3}{2022}{{Akinbo et~al.}}{{Akinbo, Samuel, Alaga, and Akingbade}}}
+\bibcite{AllenPulleyblankAjiboye2013}{{4}{2013}{{Allen et~al.}}{{Allen, Pulleyblank, and Ọládiípọ̀ Ajíbóyè}}}
+\bibcite{Ardila2020}{{5}{2020}{{Ardila et~al.}}{{Ardila, Branson, Davis, Kohler, Meyer, Henretty, Morais, Saunders, Tyers, and Weber}}}
+\bibcite{bentz2018}{{6}{2018}{{Bentz}}{{}}}
+\bibcite{Bentz2022}{{7}{2022}{{Bentz and Guti{\'e}rrez{-}V{\'a}squez}}{{}}}
+\bibcite{cmudict}{{8}{1998}{{Carnegie Mellon University}}{{}}}
+\bibcite{chomsky1968}{{9}{1968}{{Chomsky and Halle}}{{}}}
+\bibcite{dhakal2022automatic}{{10}{2022}{{Dhakal et~al.}}{{Dhakal, Chhetri, Gupta, Lamichhane, Pandey, and Shakya}}}
+\bibcite{garofolo1993timit}{{11}{1993}{{Garofolo et~al.}}{{Garofolo, Lamel, Fisher, Fiscus, and Pallett}}}
+\bibcite{hannun2017}{{12}{2017}{{Hannun}}{{}}}
+\bibcite{hayes2009}{{13}{2009}{{Hayes}}{{}}}
+\bibcite{jaeger2013}{{14}{2013}{{Jaeger}}{{}}}
+\bibcite{jurafsky2023}{{15}{2023}{{Jurafsky and Martin}}{{}}}
+\bibcite{ladefoged2011}{{16}{2011}{{Ladefoged}}{{}}}
+\bibcite{LadefogedMaddieson1996}{{17}{1996}{{Ladefoged and Maddieson}}{{}}}
+\bibcite{maddieson2010}{{18}{2010}{{Maddieson}}{{}}}
+\bibcite{umapClustering}{{19}{2023}{{McInnes}}{{}}}
+\bibcite{umap}{{20}{2018}{{McInnes et~al.}}{{McInnes, Healy, Saul, and Großberger}}}
+\bibcite{moran2014}{{21}{2014}{{Moran et~al.}}{{Moran, McCloy, and Wright}}}
+\bibcite{mortensen2016}{{22}{2016}{{Mortensen et~al.}}{{Mortensen, Dalmia, and Littell}}}
+\bibcite{epitran}{{23}{2018}{{Mortensen et~al.}}{{Mortensen, Dalmia, and Littell}}}
+\bibcite{nerbonne2010}{{24}{2010}{{Nerbonne and Heeringa}}{{}}}
+\bibcite{Przezdziecki2005}{{25}{2005}{{Przezdziecki}}{{}}}
+\bibcite{radford2022whisper}{{26}{2022}{{Radford et~al.}}{{Radford, Kim, Xu, Brockman, McLeavey, and Sutskever}}}
+\bibcite{ravanelli2019speakerrecognitionrawwaveform}{{27}{2019}{{Ravanelli and Bengio}}{{}}}
+\bibcite{rubehn2024}{{28}{2024}{{Rubehn}}{{}}}
+\bibcite{vanderhulst2017}{{29}{2017}{{van~der Hulst}}{{}}}
+\bibcite{xu2021}{{30}{2021}{{Xu et~al.}}{{Xu, Baevski, and Auli}}}
+\bibcite{yadav2022survey}{{31}{2022}{{Yadav and Sitaram}}{{}}}
+\citation{mortensen2016}
+\citation{Bentz2022}
+\newlabel{fig:yorubaphonefreq}{{14}{14}{Original Yoruba Dataset Phoneme Frequency\relax }{figure.caption.34}{}}
+\newlabel{fig:predphonefreq}{{15}{14}{After Evaluation Phoneme Frequency\relax }{figure.caption.35}{}}
+\newlabel{sec:appendixa}{{A}{14}{English inventory}{appendix.A}{}}
+\newlabel{sec:appendixb}{{B}{14}{Yoruba inventory}{appendix.B}{}}
+\newlabel{sec:formulas}{{C}{14}{Formulae}{appendix.C}{}}
+\newlabel{timit2ipa}{{3}{14}{TIMIT to IPA mapping (folded into two columns)\relax }{table.caption.32}{}}
+\citation{jurafsky2023}
+\newlabel{yorubaipa}{{4}{15}{Yoruba IPA inventory\relax }{table.caption.33}{}}
+\newlabel{tab:worstpred}{{5}{15}{Some of the worst predictions (Pred vs.\ Gold).\relax }{table.caption.36}{}}
+\newlabel{tab:bestpred}{{6}{15}{Two best predictions\relax }{table.caption.37}{}}
+\newlabel{sec:predictions}{{D}{15}{Yoruba Prediction Examples}{appendix.D}{}}
+\newlabel{fig:alignments}{{16}{15}{Automatic alignment of the median prediction\relax }{figure.caption.38}{}}
+\newlabel{fig:pearson}{{7}{16}{Pearson correlation between vowel distance and another variable\relax }{table.caption.39}{}}
+\newlabel{vowel_distsim}{{8}{16}{Vowel distances between English and Yoruba (sorted by similarity)\relax }{table.caption.40}{}}
+\newlabel{fig:embtogether}{{17}{16}{Yoruba and English consonant embeddings plotted in the same space\relax }{figure.caption.41}{}}

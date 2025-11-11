@@ -1,8 +1,7 @@
 This is BibTeX, Version 0.99dThe top-level auxiliary file: main.aux
-I couldn't open style file acl_natbib.bst
----line 63 of file main.aux
- : \bibstyle{acl_natbib
- :                     }
-I'm skipping whatever remains of this command
-I found no style file---while reading file main.aux
-(There were 2 error messages)
+The style file: acl_natbib.bst
+Database file #1: main.bib
+Warning--I didn't find a database entry for "Przezdiecki2005"
+Warning--missing publisher in Adesola2024
+Warning--missing publisher in nerbonne2010
+(There were 3 warnings)

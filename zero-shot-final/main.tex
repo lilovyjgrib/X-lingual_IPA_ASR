@@ -1,13 +1,12 @@
-% This must be in the first 5 lines to tell arXiv to use pdfLaTeX, which is strongly recommended.
-% In particular, the hyperref package requires pdfLaTeX in order to break URLs across lines.
-
 \documentclass[11pt]{article}
-\pagestyle{plain}
+%\pagestyle{plain}
 \usepackage{fontspec}
 \usepackage{tipa} % IPA package
 \setmainfont{Times New Roman}
 \newfontfamily\ipafont{Charis SIL}
 \newcommand{\ipa}[1]{{\ipafont #1}}
+\usepackage{tabularx}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
 \usepackage{array}
 \usepackage{booktabs}
@@ -40,8 +39,7 @@
 % However, it will improve the aesthetics of text in
 % the typewriter font.
 \usepackage{inconsolata}
-
-
+\usepackage{hyperref}
 % If the title and author information does not fit in the area allocated, uncomment the following
 %
 %\setlength\titlebox{<dim>}
@@ -50,47 +48,58 @@
 
 \title{Zero-Shot Cross-lingual Phoneme Recognition from Yoruba to English}
 
-\author{Aaron Bahr, Nikita L. Beklemishev, Haejin Cho, Kai Seidenspinner \and Ilinca Vandici \\
-         Universtität Tübingen }
+\author{Aaron Bahr \and Nikita L. Beklemishev \and Haejin Cho \and Kai Seidenspinner \and Ilinca Vandici \\
+         Universtität Tübingen}
 
 \begin{document}
 \pdfoutput=1
 \maketitle
-\outauthor
 \begin{abstract}
-In this paper, we pre-train an acoustic phoneme recognition model on the TIMIT dataset and evaluate its performance on the Yoruba portion of the Common voice data. We make use of the CTC architecture, allowing us to forego the need for time-aligned input data, and examine the model’s performance after transfer through a thorough and linguistically motivated feature weighting metric. Finally, we look at the phone embeddings produced by our model and try to disentangle training errors from transfer errors. All codes are available in our \href{https://github.com/lilovyjgrib/X-lingual_IPA_ASR}{Github}.
+In this paper, we pre-train an acoustic phoneme recognition model on the TIMIT dataset and evaluate its performance on the Yoruba portion of the Common voice data. We make use of the ResNet-BiLSTM together with CTC loss function architecture, allowing us to forego the need for time-aligned input data, and examine the model’s performance after transfer through a linguistically motivated feature weighting metric, reaching a 0.36 average Phoneme Error Rate on the Yoruba set. Leveraging the predictions produced by our model, we take an in-depth look at the effects of learning and transfer. All codes are available in our \href{https://github.com/lilovyjgrib/X-lingual_IPA_ASR}{Github}.
 \end{abstract}
 
-\section{Introduction}
-Efficiently training an ASR system requires a rich, ideally time-aligned dataset. For low-resource languages, despite efforts towards documentation, exploiting the properties of transfer learning by pre-training on another, high-resource, language remains a sensible option. In our case, we focus solely on producing a consistent, generalized phonemic transcription, conditioned only on acoustic segment (no language model is included). For the purpose of zero-shot evaluation, picking a set of languages with similar phoneme inventories remains the practice yielding the best performance. We chose to work on transferring American English (< West Germanic < Indo-European) to Yoruba (< Volta-Niger < Atlantic-Congo), primarily spoken in Nigeria, whose phoneme inventories overlap to a large extent, despite different areas and \textit{phyla}.
-Along with obtaining good performance on both languages, we aim to propose an efficient evaluation metric by employing a linguistically sound feature-weighted version of PER.
-Additionally, we also had to tackle the challenge of using non-time-aligned data. While the dataset we used for pre-training offered time-aligned transcriptions, this was not the case for the Yoruba dataset. We opted for an architecture integrating the \textit{Connectionist Temporal Classification Loss}, discarding the time-aligned annotations to make sure we could evaluate on non-time-aligned datasets in the future.
+\section{Introduction}\label{sec:intro}
+Efficiently training an ASR system requires a rich, ideally time-aligned dataset. For low-resource languages, despite documentation efforts, exploiting the properties of transfer learning by pre-training on another, high-resource, language remains a sensible option. \cite{xu2021} For the purpose of zero-shot evaluation, picking a set of languages with similar phoneme inventories remains the practice yielding the best performance. We chose to work on transferring American English (< West Germanic < Indo-European) to Nigerian Yoruba (< Volta-Niger < Atlantic-Congo), whose phoneme inventories overlap to a large extent, despite different areas and \textit{phyla} (Appendices \ref{sec:appendixa} \ref{sec:appendixb}).
 
-\subsection{Background} Successful transfer of knowledge in ASR relies on the fact that languages sound similar. However, acoustic sound is just the input part of the model. A common \textbf{function} from the sound to the tagret sequence is the necessary condition. Therefore, for example, the sound$\to$orthographic words model is likely not transferrable. Luckily, for linguistics, the relevant representation of speech is phonemes, which tend to correspond to sound types---which are, by and large, common. Out of all the sounds that the vocal tract can produce, languages use only a small subset, and some sounds are much more common than others. \cite{hayes2009} The shared knowledge of sound types can be described using IPA symbols. \cite{ladefoged2011} The model in the present study utilizes this knowledge, by training to recognize phonetic sequences in IPA [link] (see illustration[ref] illustration2[ref]). Furthermore, by analyzing \textbf{confusion and correspondence} patterns of the function from acoustics to phonemes inherited from English, when applied to Yoruba, we shed light on the variation and universals in these phonological systems. There already exist multiple works that aim to exploit transfer-learning using pre-trained multilingual ASR for phoneme recognition which utilizes articulatory features. \citet{xu2021} is one example. However, this paper intends to enable transfer-learning without explicitly providing pre-defined feature mappings and the need of multilingual pre-training step. The quality of transfer is assessed in Results[ref], and the patterns of transfer in Discussion[ref].
+In our case, we focus on producing a consistent, generalized phonemic transcription, conditioned only on acoustic segments. Along with obtaining good performance on both languages, we aim to propose an efficient evaluation metric by employing a linguistically sound feature-weighted version of Phoneme Error Rate (PER). We attempt to disentangle training errors from transfer errors by presenting a holistic view of our results, analyzing the confusion patterns in our  predictions through metrics like cross-entropy and normalized PMI.
 
-\subsection{English to Yoruba transfer}
-The phonemic systems of Yoruba and English are not exactly similar. This is evident just by IPA inventories, described in Appendix [ref], cf. \cite{Adesola2024}\cite{AhiaEtAl2024}\cite{moran2014} However, a few things are worthy of pointing out. (1) Above all, IPA does not aim to correctly describe language's phonemic system, but to represent phonetic features. \cite{vanderhulst2017} For example, we expect English and Yoruba to show a lot of mismatches in the partition of vowel space.[ref discussion] (2) Double-articulated \ipa{/k͡p/}, \ipa{/ɡ͡b/}, nasal vowels can could be mapped to sequences of sounds, e.g. \ipa{/kp/} or \ipa{/in/}. (3) Less universal phonological and phonotatic constraints \citet{maddieson2010} create different sound sequence distributions. This hinders transfer-learning, since RNN layer extracts temporal features during training. For example, English frequent diphthongs make the vowel--glide sequences much more probable than they should be. Yoruba constrains to (C)V(N) syllables and vowel harmony.\cite{Przezdziecki2005}[ref Discussion] (4) Ideally, the model should learn the contrasts of Yoruba, but it learns distinctions of English. For example, unlike English, \ipa{[n ~ l]}, \ipa{[ɾ ~ ɹ]} are allophonic in Yoruba. The shallow English transcription distinguishes allophones like \ipa{[ɨ ~ i]}, and such cases will noise the correspondence between the predictions and Yoruba labels.
+In recent years, multilingual ASR has gained more and more attention. Models like \citet{radford2022whisper} perform well on low resource languages, given the diversity and size of the training dataset which allows them to form representations for a variety of phonemes. However, as models grow in size, interpretability becomes a more delicate task. Acknowledging this, we choose to focus on one language pair that instead allows us to gain a deeper insight of the mechanisms at work during transfer.
 
-\subsection{The inventories problem} Given the differences in inventories discussed above, relating English IPA predictions to Yoruba IPA gold standard becomes a problem: how to say that sequences match, if the alphabet is only in part common? In quantitative spirit of this course, we define the `sameness' of two phonemes as a gradient from 0 to 1. To find this, we can utilize the phonological feature theory.\cite{chomsky1968}
-Each sound has a feature representation indicating which natural classes it belongs and does not belong to. Although sounds vary in how much features from the overall set they specify, it is convenient to represent each sound as a vector over the entire feature inventory, with each feature coded as positive (+1), negative (−1), or unspecified (0). The Hamming distance between two such vectors, restricted to non-zero dimensions and normalized by the dimensionality, then serves as the dissimilarity measure (see Appendix C[ref]). This approach has been used for a long time in cognate detection and, for example, dialectometry.\citet{nerbonne2010} Among many notable databanks aggregating the knowledge of features, such as PHOIBLE \cite{moran2014} and SoundVector \cite{rubehn2024}, we chose PanPhon \cite{mortensen2016} for the balance between the quality of representation and availability. The details of the implementation are discussed in Inference[ref].
+In terms of the model architecture, using the ResNet-BiLSTM model along with \textit{Connectionist Temporal Classification Loss} ensured that we could evaluate on non time-aligned data, with the additional benefit of enhancing adaptability to context, which will be discussed in section 3.
 
-\section{Dataset}
-\paragraph{Training set} For training we use the infamous TIMIT ASR corups. \cite{garofolo1993timit} includes 6300 utterances recorded by 630 speakers from 8 major English dialects across the US. Annotations were done according to the customized IPA convention based on ARPAbet \cite{cmudict} (please refer to Appendix \ref{sec:appendix}). As both English and Yoruba are pluricentric languages, the learning benefits a lot from the variety in the input data. Even though TIMIT confines itself to the 1980s US language roof, it represents the existing dialectal variation well. This phonetic variation is necessary for learning to generalize over acoustically different speech sound, which is particularly relevant for transfer learning. Another reason for TIMIT is the popularity of it in ASR studies, which gives us confidence in yielding baseline results, comparable with other works in the area.
+\subsection{Background}\label{sec:background}
+Transfer learning occurs when using a model to carry out a task different from the one it has originally been trained on. This can be done in different ways, for instance by using the pre-defined representations a model has formed on downstream tasks, or by fine-tuning the model weights in order to skew the distribution towards that of the new task \cite{yadav2022survey}. This last variant is particularly popular when training multilingual ASR models, which due to compute progress, have becoming more common \cite{radford2022whisper}. In our case, we examine zero-shot transfer by running inference directly on the new task, without the intermediary of pre-defined feature mappings.
 
-\paragraph{Preprocessing the training set} For usage, we first concatenated the train, validation, and test sets and then again randomly split it into train and validation sets with the proportion being 0.25. Thus TIMIT is used only for training and validation in our cross-lingual task. Regarding the audio data, we have extracted log-mel features (dimension 39). The TIMIT alphabet contained 63 unique labels in total. To reduce prediction complexity and to make the phonemic representation of English compatible with that of Yoruba, before mapping to IPA, we merged or split several labels. This included allophones not annotated in the Yoruba corpus: \ipa{<ax-h> /ə̥/} and \ipa{/ə/}, syllabic sonorants, e.g. \ipa{<eng> /ŋ̍/} and \ipa{/ŋ/}. Closures \ipa{<dcl> /d̚ /} and the following releases \ipa{/d/} were joined into one label. In the end, 15 label types were merged. We did not expect systematic unreleased closures in \textbf{open-syllable} Yoruba. \cite{Adesola2024} As for the splitting the combinatorially large inventory of English diphthongs, we split them into vowel--glide sequences, keeping the vowels from the IPA convention: thus \ipa{<oy> /ɔɪ/} became \ipa{<ao y> /ɔ j/}. This step was necessary since Yoruba does not have diphthong vowels. \citet{Przezdziecki2005} We also concluded that splitting vowels will not perplex the prediction given that the CTC decoding does not need time alignment, and our evaluation ignores word boundaries.
+With architectures and compute power improving, models utilizing the property of transfer at the pre-training stage in order to achieve multilingual representations have become increasingly common. \citet{xu2021} is one example. However, this paper intends to enable transfer-learning without explicitly providing pre-defined feature mappings. We also believe that focusing on separate languages for training and evaluation allows us to gain a deeper insight of the mechanisms at work during transfer.
 
-\paragraph{Evaluation set} Common Voice Yoruba data was used as a test dataset. Common Voice is a multilingual crowd-sourced corpus aimed for Speech Recognition purposes. \cite{Ardila2020} The audios were recorded by certified native speakers of each language. Annotations are suggested and later validated by other native speaker users via votes.There are 3.4k samples in total and each sample includes an MP3 file, speaker ID and audio transcription written in Yoruba orthography. The dataset also includes data from different dialects. This allows to acknowledge the performance gaps that are shown to arise between standard Yoruba and other dialects in NLP tasks. \citet{AhiaEtAl2024}
-\paragraph{Processing the evaluation set} The sets of train (1.4k), validation (913) and test (1.1k) were again concatenated and used together for testing. We kept the original threshold of down votes for invalidated samples. Since we need to keep the shape and content of the train and test data identical, 39-dimensional log-mel feature was extracted from Yoruba in the same way.
-We implemented additional grapheme-to-phoneme conversion, since the model predicts IPA symbols given audio inputs, which means that data should at least have phoneme/phonetic representations as a label. We converted Yoruba sentences line-by-line via \texttt{Epitran} Python module. First of all, the word boundaries, as well as the pauses were removed. We also ignored the tone annotation ({\ipa{˧}, \ipa{˦}, \ipa{˨}), although seeing the transfer abilities could be an interesting branch of research. We have removed the marginally phonemic \ipa{/ɔ̃}, \ipa{ŋ/} from the inventory, merging with their allophones \ipa{/ã/} and \ipa{/n/}. \cite{Przezdziecki2005} Another marginal \ipa{/ɛ̃/} remained. The data also turned out to contain an occurrence of dialectal \ipa{<ụ> /ʊ/} \citet{AllenPulleyblankAjiboye2013}, which is too small to generalize from, so we removed it as well from the evaluation for clarity. Full and adjusted Yoruba IPA inventory in Appendix \ref{sec:appendixb}.
+\paragraph{Theoretical capabilities} It is commonly understood that the more similar the probability distribution under the new task is to that of the original task, the higher the likelihood of successful transfer learning. For the case at hand, it is facilitated by the fact that languages sound similar, and the knowledge of human vocalizations is shared. Sound is just the input part of the model. A common \textbf{function} from the sound to the target sequence is the necessary condition for transfer. However, the arbitrary variation between different orthographies makes for a poor generalization target. Luckily, for linguistics, the relevant representation of speech is phonemes, which tend to correspond to sound types---which are, by and large, commonly shared. Out of all the sounds that the vocal tract can produce, languages use only a small subset, and some sounds are much more common than others. \citep[p.~6]{hayes2009} The shared knowledge of sound types can be described using IPA symbols. \cite{ladefoged2011} The IPA presents an established framework through which this similarity is defined, and enables us to unify transcriptions across languages, ensuring that the learned function maps from the acoustic domain to a common representation.
+
+Furthermore, we analyze the \textbf{confusion and correspondence} patterns that appear in the model's transfer performance. Seeing where the generalizing function from acoustics to phonemes inherited from English fails and withstands being applied to Yoruba, we speculate on the variation and universals in these phonological systems.
+
+\subsection{The inventories problem} As identified, the codomain of the sounds to phonemes function will need to at least partly overlap across both tasks in order to obtain an interpretable output. The phonemic systems of Yoruba and English differ (Appendices \ref{sec:appendixa}, \ref{sec:appendixb}; \cite{Adesola2024, moran2014, Akinbo2022}), which poses a task of relating English IPA predictions to the Yoruba IPA gold standard: What is a matching sequence, given that the alphabets only partially correspond? Feature theory \cite{chomsky1968} supplies a graded notion of segment similarity. Each sound has a feature representation indicating which natural classes it belongs and does not belong to. Although sounds vary in how many features from the overall set they specify, it is convenient to represent each sound as a vector over the entire feature inventory, with each element coded as positive (+1), negative (−1), or unspecified (0). The Hamming distance between two such vectors, restricted to non-zero dimensions and normalized by dimensionality, then serves as the dissimilarity measure (see Appendix \ref{sec:formulas}). This approach has been used for a long time in fields like cognate detection (according to \citet[p.~283]{jaeger2013}) and dialectometry. \cite{nerbonne2010} Among many notable databanks aggregating the knowledge of features, such as PHOIBLE \cite{moran2014} and SoundVector \cite{rubehn2024}, we chose PanPhon \cite{mortensen2016} for its balance between the quality of representation and availability. The details of the implementation are discussed in Section~\ref{sec:inference}.
+																																																																																																																																																																																																																																																																																																																																																																																																																					
+\subsection{Possible disruptors of English to Yoruba transfer}\label{sec:hypo}
+Apart from the differences in inventories discussed above, we hypothesise that several other factors will further complicate the downstream performance. (i) Above all, the IPA does not aim to fully describe language's phonemic system, in a structuralist sense, but to represent ``universal'' phonological features. \citep[p.~40]{vanderhulst2017} Hence, for instance, even identical IPA symbols may partition the vowel space differently in English and Yoruba. (ii) The set of universal phonological features is not universally agreed upon. The symbols \ipa{/ɔ, ɛ/} occur in both languages, but in English they instantiate the traditional [--tense] contrast \cite{moran2014}, whereas in Yoruba they pattern with [--ATR] \cite{AllenPulleyblankAjiboye2013}. PanPhon \cite{mortensen2016} equates the Germanic lax/tense with ATR, although English is generally analysed as controlling centralization/height rather than tongue-root advancement, and many ATR languages show no such centralization \cite{LadefogedMaddieson1996, Przezdziecki2005}. Even though \citet{Przezdziecki2005} shows that Yoruba [--ATR] vowels do appear centralized, we predict the transfer of \ipa{/ɔ, ɛ/} to be somewhat noisy, as in fact they constitute different features in the source and target languages. (iii) Perceptually, a single phoneme may be decomposed into a sequence in context of another phonological system. Yoruba has double-articulated sounds, i.e. \ipa{/k͡p/}, \ipa{/ĩ/}, which could be mapped to sequences like \ipa{/k p/} or \ipa{/i n/}). (iv) Phonological and especially phonotactic constraints are less universal than inventories \cite{maddieson2010}, yielding different sound sequence distributions. This hinders transfer-learnin of temporal features. For example, English frequent diphthongs might make the vowel--glide sequences over-predicted relative to Yoruba, which instead has constraints on codaless syllables and traits of tongue root vowel harmony. \cite{Przezdziecki2005, AllenPulleyblankAjiboye2013, Akinbo2022} (v) Ideally, the model should learn the contrasts of the target language, but it is in fact trained for distinctions of the training language. For example, Yoruba treats \ipa{[n\,\textasciitilde\,l]}, \ipa{[ɾ\,\textasciitilde\,ɹ]} as allophonic, and the shallow English transcription distinguishes allophones like \ipa{[ɨ\,\textasciitilde\,i]}, and such cases will noise the correspondence between the predictions and Yoruba labels.
+
+\section{Dataset}\label{sec:dataset}
+\paragraph{Training set} For training we use the TIMIT ASR corpus. \citet{garofolo1993timit} includes 6300 utterances recorded by 630 speakers of 8 major English dialects across the Unites States. Annotations were done according to the customized IPA convention based on ARPAbet \cite{cmudict} (please refer to Appendix~\ref{sec:appendixa}). As both English and Yoruba are pluricentric languages, training the model on a variety of dialects will likely improve the performance in downstream tasks. Even though TIMIT confines itself to the 1980s US language roof, it represents the existing dialectal variation well. This phonetic variation is necessary for learning to generalize over the variation in sounds, which is particularly relevant for transfer learning. Another advantage of TIMIT is its ubiquity in ASR studies, which gives us confidence in yielding baseline results, comparable with other works in the area.
+
+\paragraph{Preprocessing the training set} For usage, we first concatenated the train, validation, and test splits before again randomly dividing it into train and validation splits (with a 75 to 25 ratio). We perform a Fast Fourier Transform on the audio data, collecting 39 log-scale MFCC features, including first and second-order derivatives.
+
+The TIMIT alphabet contained 63 unique labels in total. In order to reduce prediction complexity and ensure the compatibility of the phonemic representation between both languages, making way for the IPA mapping process, we merged or split several labels. This included allophones not annotated in the Yoruba corpus: \ipa{<ax-h> /ə̥/} \rightarrow\;\ipa{/ə/}, syllabic sonorants, e.g. \ipa{<eng> /ŋ̍/} \rightarrow\;\ipa{/ŋ/}. Closures \ipa{<dcl> /d̚ /} and the following releases \ipa{/d/} were joined into one label: we did not expect systematic unreleased closures in \textbf{open-syllable} Yoruba. \cite{Adesola2024} In the end, 15 label types were merged. As for the splitting the combinatorially large inventory of English diphthongs, we split them into vowel--glide sequences, keeping the vowels from the IPA convention: thus \ipa{<oy> /ɔɪ/} became \ipa{<ao y> /ɔ j/}. This step was necessary since Yoruba does not have diphthongs. \citep{Przezdziecki2005} We also concluded that splitting them will not perplex the prediction given that the CTC decoding does not need time alignment, and that our evaluation ignores word boundaries.
+
+\paragraph{Evaluation set} The Yoruba section of Common Voice was used as a test dataset. Common Voice is a multilingual crowd-sourced corpus aimed for Speech Recognition purposes. \cite{Ardila2020} The audios were recorded by certified native speakers of each language. Annotations are suggested and later validated by other native speaker users via votes. There are 3.4k samples in total, with each sample including a MP3 file, speaker ID and audio transcription written in Yoruba orthography. The dataset also includes data from different dialects. To an extent, this accounts for the performance gaps that are shown to arise between standard Yoruba and other dialects in NLP tasks. \citep{AhiaEtAl2024}
+
+\paragraph{Processing the evaluation set} The sets of train (1.4k), validation (913) and test (1.1k) were again concatenated and used together for testing. We kept the original threshold of downvotes for invalidated samples. As for the audio data, features were extracted under the same configuration as for the TIMIT dataset. Since Common Voice only provides an orthographic representation of the sentence, it was necessary to implement a grapheme-to-phoneme to obtain an IPA representation that could then be compared with the model output. For this purpose, we used \texttt{Epitran} package \cite{epitran} (for discussion see Section \ref{sec:limitation}) and pre-processed the resulting strings. Word boundaries and pauses were removed. We also ignored the tone annotation ({\ipa{˧}, \ipa{˦}, \ipa{˨}). We have removed the marginally phonemic \ipa{/ɔ̃}, \ipa{ŋ/} from the inventory, merging with their positional allophones \ipa{/ã/} and \ipa{/n/}. \cite{AllenPulleyblankAjiboye2013, Akinbo2022}: 2 Another marginal \ipa{/ɛ̃/} remained. The data also turned out to contain one occurrence of dialectal \ipa{<ụ> /ʊ/} \cite{Przezdziecki2005}, which is too small to generalize from, so we removed it as well from the evaluation for clarity. The resulting Yoruba IPA inventory is available in Appendix \ref{sec:appendixb}.
 
 \section{Model and Traning}
 \subsection{ResNet-Bi-LSTM model}
-Our model is based on that of \cite{dhakal2022automatic}, which used ResNet-BiLSTM model for Nepali Speech Recognition. The reason why we chose this model as our base reference was (1) to use pure neural-network-based model so that it is relatively easy to train and light-weight in terms of memory, (2) to include residual connection which is largely used in transformers as well as deep neural network models, and (3) to explore whether a model that is trained from scratch can also perform well on monolingual zero-shot cross-lingual speech recognition task unlike \cite{xu2021}. We will first briefly overall architecture and setting of the original model and then list our adjustments.
+Our model is based on that of \citet{dhakal2022automatic}, which used ResNet-BiLSTM model for Nepali Speech Recognition. The reason why we chose this architecture as our base reference was (1) neural-network-based models are relatively easy to train and light-weight in terms of memory, (2) we wanted to include residual connections which is largely used in transformers as well as deep neural network models, and (3) to explore whether a model that is trained from scratch using monolingual data can also perform well on zero-shot cross-lingual speech recognition task unlike \citet{xu2021}. We will first briefly describe overall architecture and setting of the original model and then list our adjustments.
 
-The model starts with initial CNN layer and 5 consecutive ResNet blocks. These aim to capture locally dependent features and we will call these sets of layers a 'ResNet Encoder'. Each block consists of 2 unit blocks and one unit block is comprised of initial convolution, Batch Normalization, and PReLU as an activation. All kernels have kernel size of 15 and the number of maps of 50. A key part of residual block is to add original input to activation layer output. \cite{ravanelli2019speakerrecognitionrawwaveform} have attested that residual connections noticeably stabilize and optimize deep neural network training, which later also attested to work well with audio tasks as was observed in \cite{dhakal2022automatic}. Bi-LSTM encoder part then follows Residual Encoder. Bi-LSTM is designed to reflect distinctive temporally-related features in two opposite directions. \cite{dhakal2022automatic} has two RNN layers with its dimension being both 170. As final layers, two dense layers and ReLU activation takes the output of bi-LSTM and maps 170-dimension input into 66-dimension.
+The model starts with an initial CNN layer and 5 consecutive ResNet blocks. These make up the `ResNet Encoder', which aims to capture local dependencies. Each block consists of 2 unit blocks, with each unit block containing an initial convolution, Batch Normalization, using PReLU in lieu of the activation function. Every convolution layer has 50 feature maps with kernel size 15. The key idea behind residual connections is that adding the original input at deeper stages in the forward pass will result in grounding the representations. \citet{ravanelli2019speakerrecognitionrawwaveform} have attested that residual connections noticeably stabilize and optimize deep neural network training, which \citet{dhakal2022automatic} confirms therefore extending to audio data. A Bi-LSTM encoder part then follows the Residual Encoder. Bi-LSTM is designed to reflect distinctive temporally-related features in two opposite directions. \citet{dhakal2022automatic} has two RNN layers with its dimension being both 170. As final layers, two dense layers and ReLU activation takes the output of Bi-LSTM and projects the 340-dimensional output onto the phonemic embedding space.
 
-We have made several crucial changes based on multiple experiments in order to prevent overfitting and to keep the depth of our model shallower under zero-shot cross-lingual task setting. (1) The first major change is to reduce the depth of ResNet encoder block. Our model has 3 residual blocks while the original model has 5 blocks. Also, one residual block has only one set of unit block while the original residual block has 2 unit blocks. In other words, our ResNet encoder part is 0.3 times the depth of that of the base model. All other settings regarding ResNet encoder have fixed same as \cite{dhakal2022automatic}. (2) We have also diminished hidden dimensions of Bi-LSTM encoder and dense layer. From 170 to 128 as to hidden dimension of RNN layer and from 340 to 256 as to dense layer dimension. This also contributes to better computational efficiency as it corresponds to GPU's natural memory alignment and fetches. (3) Lastly, strong dropout rate was introduced to RNN layers. We set dropout as 0.4, which is two times higher than the original setting. This was also part of an effort to enable cross-lingual application. Refer to the following visualization that marks key differences between \cite{dhakal2022automatic} and our model.
-Learning without an LM CTC.
+We have made several crucial changes based on multiple experiments in order to prevent overfitting and to restrict the depth of the model under zero-shot cross-lingual task setting. (1) We downsize the number of ResNetEncoder layers from 5 to 3, and change the number of unit blocks from 2 to 1, meaning that we reduced the original model to a third of its depth.  All other ResNet encoder settings remain fixed as in \citet{dhakal2022automatic}. (2) We also diminished hidden dimensions of Bi-LSTM encoder and dense layer, from 170 to 128 as to hidden dimension of RNN layer and from 340 to 256 as to dense layer dimension. (3) Finally, we introduced a stronger dropout rate to the dense layer, with the aim of facilitating cross-lingual application. Refer to the following visualization that marks key differences between \citet{dhakal2022automatic} and our model.
+
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{modelarchitecture+.png}
@@ -106,7 +115,7 @@ Learning without an LM CTC.
     \label{fig:residualblock}
 \end{figure}
 
-We employed Connectionist Temporal Classification (CTC) loss as our training criterion. Unlike conventional frame-level cross-entropy, CTC does not require pre-aligned input-label pairs, which makes it especially suitable for low-resource languages such as Yoruba, where alignment information is unavailable. The key idea of CTC is to introduce a blank symbol and permit label repetitions so that multiple frame-level alignments can correspond to the same output sequence. During training, CTC computes the negative log-likelihood of the target sequence by summing the probabilities of all valid alignments:
+We employed the Connectionist Temporal Classification (CTC) loss as our training criterion. Unlike conventional frame-level cross-entropy, CTC does not require pre-aligned input-label pairs, which makes it especially suitable for low-resource languages such as Yoruba, where alignment information is often unavailable. The key idea of CTC is to introduce a blank symbol and permit label repetitions so that multiple frame-level alignments can correspond to the same output sequence. During training, CTC computes the negative log-likelihood of the target sequence from total probabilities of all valid alignments:
 $$L_{CTC} = \sum_{(X, Y) \in D} - \log P_{CTC}(Y \mid X)$$
 where the probability of a target sequence $Y$ given the input $X$ is defined as
 \[
@@ -117,338 +126,321 @@ P_{CTC}(Y \mid X) &= \sum_{A \in B^{-1}(Y)} P(A \mid X) \\
 \]
 with $A=(a_1, \dots, a_T)$ being a frame-level alignment, $B$ the collapse function that removes blanks and repeated labels, and $h_t$ the hidden representation at time $t$. The blank symbol $\epsilon$ needs to be manually added to the alphabet so that the model can output blanks during training and inference.
 
-At decoding time, greedy decoding selects the most probable label at each timestep, and the CTC collapse operation removes duplicates and blanks to produce the final prediction sequence $\hat{Y}$.
+At decoding time, we select the output sequence with the highest conditional probability, obtained by summing over all valid alignments, and the CTC collapse operation removes duplicates and blanks to produce the final prediction sequence $\hat{Y}$.
 $$\hat{Y} = \arg\max_{Y} P_{CTC}(Y \mid X).$$
 
+In our experiments, however, we use plain greedy CTC decoding, without an external language model. This choice is motivated by the zero-shot setting, where we want the model to remain agnostic to language-specific temporal patterns. It is worth mentioning that, along with the purely practical lack of an aligned corpus, CTC can also in some cases present an advantage over architectures that rely on alignment. Indeed, \citet{hannun2017} argues that aligned data might induce some biases, especially if the corpus is not diverse enough in regards to the kind of speech contexts available.
+
 \subsection{Train}
-Train settings were set through multiple experiments. The number of epochs is 50 and batch size was 64. We have adopted Adam as our stochastic gradient optimizer and set weight decay as 1e-4. A plateau-based learning rate scheduler was used and the initial learning rate was 1e-3. The total number of parameters are 0.8 million. With (hyper)parameter settings given above, training was noticeably stable and robust to overfitting. Both training and validation loss and PER consistently decreased and we halted training at the 16th epoch where Train PER reached 0.0223 and Validation PER reached a similar figure, 0.0339.
+Train settings were set through multiple experiments. The number of epochs is \texttt{50} and batch size was \texttt{64}. We have adopted Adam as our stochastic gradient optimizer and the weight decay set to \texttt{1e-4}. A plateau-based learning rate scheduler was used, with an initial learning rate of \texttt{1e-3}. The total number of parameters is \texttt{0.8} million. With the (hyper)parameter settings given above, training was noticeably stable and robust to overfitting. Both training and validation loss and PER consistently decreased and we halted training at the 16th epoch where Train PER reached \texttt{0.0223} and Validation PER reached a similar figure, \texttt{0.0339}.
 
 \section{Results}
 
-As seen, the model shows a decent performance on English. Let's assess the transfer capabilities.
+As seen from the final PER results, the model shows a promising performance on the English dataset. We now introduce the framework we used for evaluation, before delving deeper into the results produced by transfer.
 
-\subsection{Evaluation Method} To evaluate the output of our model on Yoruba, we have to adjust the Phoneme Error Rate for the issue of different IPA inventories cf. Introduction[ref]. The metric we employ is feature-weighted PER. Like the regular PER, it is a Levenshtein distance between predicted a golden sequences, normalized by the length of the golden sequence. Unlike the PER, the substitution cost depends on the Hamming feature distance, thus reflecting the expected dissimilarity per gold phone. We took the standard feature model from PanPhon, but took liberty to delete the features that don't distinguish IPA symbols in our inventories: [\texttt{sg}, \texttt{velaric}, \texttt{long}, \texttt{hitone}, \texttt{hireg}].  Another our assumption is that the alignments achieved with this method are not only minimally costly, but also intuitively correct. As we see in Discussion, it is not always the case.
+\subsection{Evaluation Method}
+We evaluate the output sequence with relation to the corresponding gold labels sequence, by computing its Feature-Weighted Phoneme Error Rate (fwPER). Like the regular PER, this measure is a Levenshtein distance between the predicted and golden sequences, normalized by the length of the golden sequence. Unlike in classic PER, the substitution cost is not fixed, but based on the phonological information vectors we built using PanPhon for each pair of sounds. For two phonemes, it is the Hamming distance of their feature vectors, normalized from 0 to 1 (Appendix~\ref{sec:formulas}). Thus one can roughly think of it as expected dissimilarity per phoneme token. We took the liberty of removing some of the PanPhon features, those that reflect the distinctions not relevant in describing the English and Yoruba inventories:  [\texttt{sg}, \texttt{velaric}, \texttt{long}, \texttt{hitone}, \texttt{hireg}]. We built on and reworked the original PanPhon source code for fwPER to be able to extract the alignment and also optimized its alignment calculation algorithm for speed. The main assumption behind our evaluation scheme is that the alignments achieved with this method are not only minimally costly, but also intuitively correct. As we see in Discussion, it is not always the case.
 
-\subsection{Inference}
+\subsection{Inference}\label{sec:inference}
+During inference, we observed that our model had a tendency to over-generate, making the output consistently longer than the gold labels. A look at the Appendix~\ref{sec:predictions} reveals that this is a transfer defect of the model. Some of the worst performances arise from this over-generation. Whenever this happens, the inserted sounds tend to be somewhat rare phones, repeating: \ipa{/ʔ, ɨ, ʉ, k, t, n/}. This mildly leads to the conjecture that it reflects some extra-linguistic noise that was not present in the training TIMIT recordings. Indeed, we noticed that the Common Voice audio data often included long pauses preceding and following the utterance. While for future investigations, it might be relevant to include noise reduction techniques, we chose to tackle this issue at the decoding / evaluation step, by lowering the deletion cost to \texttt{0.5} and insertion cost to \texttt{0.75}.
 
-During inference, we observed that our model had a tendency to overgenerate, making the output consistently longer than the gold labels. A look at the Appendix [ref] reveals that this is a transfer defect of the model. Some of the worst performances of the model arise from this over-generation. Whenever this happens, the inserted sounds tend to repeat: a lot of \ipa{/ʔ, r, t/} or a lot of \ipa{/m, n, w/}. This mildly leads to hypothesis that it reflects some extra-linguistic noise, that was not present in the training TIMIT recordings. Also, the speech in Common Voice often doesn't start right away, and the side noises before and after get parsed by the model as sounds. Lowering the deletion cost to 0.5 and insertion cost to 0.75 subjectively helped improve the alignment of such cases.
+\paragraph{Results} Default PER achieved on Yoruba was \texttt{0.34}. It ranged from \texttt{0.18} to \texttt{1.11}, with median \texttt{0.30}. The best and worst predictions, as well as the alignment of the median prediction are in Appendix~\ref{sec:predictions}. With the original Levenshtein costs for deletion and insertion, median PER increases to \texttt{0.35}.
 
-\paragraph{Results} Default PER achieved on Yoruba was 0.34. It ranged from 0.18 to 1.11, with median 0.30. The best and worst predictions, as well as the alignment of the median prediction are in Appendix [ref]. If the deletion and insertion costs are counted as 1, it raises to 0.35.
+\subsection{Performance by phoneme}\label{sec:entropy}
 
-\subsection{Mapping accuracy by sound}
-
-Below are the alignments from the evaluation algorithm, depicted in the confusion matrix[ref]. Color encodes the posterior probabilities of prediction labels based on gold labels. At first glance, we can see predictions close to the gold label tend to have a higher probability. For the majority labels for which the most common prediction is incorrect, it usually still reflects a degree of similarity with the most common label (for instance, i is the most likely prediction for e).
+Alignment counts (weighted Levenshtein) are depicted below, in the form of a confusion matrix: Figure~\ref{fig:postconf}. Color encodes the posterior probabilities of the prediction labels given the gold labels, so for example, a gold Yoruba label \ipa{/ɛ/} is most likely to be predicted as \ipa{/ɪ/}, followed by \ipa{/i/} in English IPA inventory.
 
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{EngYorConfusionMatrix.png}
     \caption{English-Yoruba Confusion Matrix with Posterior Probability}
-    \label{fig:placeholder}
+    \label{fig:postconf}
 \end{figure}
 
-We used conditional entropy to find what sounds are better or worse transferred, assuming that a well-transferred Yoruba sound will have a less uniform alignments: most alignments would belong to a couple of close classes. The results are presented in Appendix [ref], together with/. The expected conditional entropy $H = $ was \texttt{}. Fore more accurately predicted sounds are the phonetically close sounds, the most common alignments are the phonetically similar sounds, in terms of feature distance.
+\paragraph{Confusion entropy} We used conditional entropy to find which Yoruba phonemes are successfully transferred (Table~\ref{table:confusionent}), assuming that a well-transferred sound will have a less uniform distribution over predicted sounds: most alignments would belong to a couple of phonetically close classes. Most of the formulae we used were drawn from \citet{Bentz2022} (Appendix~\ref{sec:predictions}).
 
-To see, how unambiguous is the mapping between the model output and the gold standard, i.e. if it is possible to restore the Yoruba IPA from predicted IPA we use conditional entropy of golden label probabilities given the predicted label. Overall, except for a few frequent labels, the mappings are stable, as seen in Appendix [ref]. The expectation was ..., i.e. about ... .
+For all of the phonemes the entropy was relatively high. It is evident from the results that phonemically similar symbols in terms of feature distance were the most common alignments for more accurately predicted phonemes---except for, for example, voiced fricatives, which Yoruba does not contrast. It seems, front vowels and consonants articulated in the front were broadly predicted correctly, whereas back vowels and consonants were more frequently confused. We found no possible phonetic explanation to this other than that it could be an artifact of the feature system.
 
-\subsection{Phone Embeddings Extraction}
-We later ran an experiment with inference to produce phone embeddings, and attempt to plot these using dimensionality reduction. We collected the final embeddings for each correctly predicted phoneme (whose feature size length equals the vocabulary size) and used UMAP to obtain 2-dimensional embeddings, for which we obtain the mean by phoneme. We settled on UMAP since it maintains the non-linear assumption of t-SNE regarding the data while being less dependent on initialization. Note that we converted the labels obtained by inference to IPA for ease of comparison. While both plots seem to group similar sounds together to an extent (e.g), comparing inference simultaneously on both datasets remains tricky due to 1) the different probability distributions, and, to an extent, the difference in dataset sizes 2) while UMAP remains an efficient dimensionality reduction method, it is unclear whether plotting always reflects similarity through clustering.
-To investigate this further, we decided to run a correlation test between the Euclidian distance between phones after dimensionality reduction) and feature weight. This shows that there is a significant correlation between the two variables, but it presents a low, negative regression coefficients, showing that phonemes with different features tend to have a relative larger Euclidian value, which goes against what we would initially hope for. Moreover, attempting to map mean Yoruba and English embeddings into the same space and then computing their distance across several trials shows a high degree of variation.
+\begin{table}[ht]
+\centering
+\caption{Confusion entropy, empirical and theoretical (feature-based) correspondences.}
+\label{table:confusionent}
+\begin{tabular}{c l l c}
+\toprule
+\textbf{Gold} & \textbf{Confusions} & \textbf{Similar} & \textbf{H} \\
+\midrule
+\ipa{s} & \ipa{[z, s, n, v]} & \ipa{[s, z, t, ʃ]} & 3.40 \\
+\ipa{m} & \ipa{[m, n, l, w]} & \ipa{[m, b, n, p]} & 3.67 \\
+\ipa{d͡ʒ} & \ipa{[d͡ʒ, d, n, z]} & \ipa{[d͡ʒ, t͡ʃ, ʒ, ʃ]} & 3.69 \\
+\ipa{b} & \ipa{[b, v, m, n]} & \ipa{[b, p, m, v]} & 3.76 \\
+\ipa{ʃ} & \ipa{[ʒ, ʃ, z, h]} & \ipa{[ʃ, ʒ, s, t͡ʃ]} & 3.80 \\
+\ipa{i} & \ipa{[i, ɨ, ɪ, j]} & \ipa{[i, e, ɨ, ɪ]} & 3.81 \\
+\ipa{w} & \ipa{[w, j, ʔ, u]} & \ipa{[w, ʍ, u, ə˞]} & 3.82 \\
+\ipa{e} & \ipa{[i, ɪ, ɨ, j]} & \ipa{[e, i, æ, ɛ]} & 3.87 \\
+\ipa{j} & \ipa{[j, i, w, ʔ]} & \ipa{[j, i, ɪ, w]} & 3.92 \\
+\ipa{ĩ} & \ipa{[i, ɪ, ɨ, u]} & \ipa{[i, e, ɨ, ɪ]} & 3.93 \\
+\ipa{ɛ̃} & \ipa{[ɪ, ɛ, n, ʔ]} & \ipa{[ɛ, e, ə, ɪ]} & 3.99 \\
+\ipa{d} & \ipa{[d, n, ɡ, b]} & \ipa{[d, t, n, z]} & 4.00 \\
+\ipa{n} & \ipa{[n, m, l, d]} & \ipa{[n, d, l, m]} & 4.03 \\
+\ipa{r} & \ipa{[ɹ, n, j, l]} & \ipa{[r, l, d, n]} & 4.07 \\
+\ipa{ɛ} & \ipa{[ɪ, i, ɛ, ɨ]} & \ipa{[ɛ, e, ə, ɪ]} & 4.09 \\
+\ipa{k} & \ipa{[ɡ, ʔ, k, h]} & \ipa{[k, ɡ, h, ŋ]} & 4.10 \\
+\ipa{ɡ͡b} & \ipa{[b, m, w, v]} & \ipa{[ɡ, b, k, p]} & 4.13 \\
+\ipa{f} & \ipa{[f, v, z, h]} & \ipa{[f, v, p, s]} & 4.14 \\
+\ipa{u} & \ipa{[u, ɨ, i, ʉ]} & \ipa{[u, ʉ, o, ɨ]} & 4.16 \\
+\ipa{t} & \ipa{[z, d, n, t]} & \ipa{[t, d, s, θ]} & 4.16 \\
+\ipa{k͡p} & \ipa{[b, w, ʔ, v]} & \ipa{[k, p, ɡ, b]} & 4.18 \\
+\ipa{ɡ} & \ipa{[ɡ, b, w, v]} & \ipa{[ɡ, k, ŋ, b]} & 4.18 \\
+\ipa{ũ} & \ipa{[u, ɨ, w, ɪ]} & \ipa{[u, ʉ, o, ɨ]} & 4.21 \\
+\ipa{l} & \ipa{[l, n, ɹ, j]} & \ipa{[l, d, n, z]} & 4.26 \\
+\ipa{h} & \ipa{[ʔ, h, w, l]} & \ipa{[h, k, ʔ, j]} & 4.33 \\
+\ipa{o} & \ipa{[u, ɨ, o, i]} & \ipa{[o, ɔ, ʌ, a]} & 4.41 \\
+\ipa{a} & \ipa{[a, ʌ, æ, ɑ]} & \ipa{[a, æ, ɑ, ʌ]} & 4.52 \\
+\ipa{ɔ} & \ipa{[o, ə, ʌ, ɨ]} & \ipa{[ɔ, o, ə, ʊ]} & 4.53 \\
+\ipa{ã} & \ipa{[ɨ, o, u, ə]} & \ipa{[a, æ, ɑ, ʌ]} & 4.55 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-We can see that in some cases, similar sounds do tend to cluster, but these patterns seem to differ from language to language. For Yoruba, we can observe vowels clustering together in the same part of the space, while consonants remain together. The sibilants /textipa{s} and /textipa{S} seemed to be the closest pair in that space, possibly indicating that the model's embedding space reflects similarity between these. However in the case of the other consonants, a clear-cut pattern was is more difficult to establish, although we could argue that there is a delineation between voiced and unvoiced consontants. As for the projection obtained by TIMIT, it also seems that only a few patterns are reflected in the space, for instance /textipa{i} and  /textipa{I}, although all of the vowels are not grouped within the same space.
+\paragraph{Mapping entropy} A perhaps more interesting question in context of using the model for transfer is whether we can restore the Yoruba phonemes reliably from our TIMIT-based model predictions. To see how unambiguous this mapping is, and how much signal our model contains after transfer, we use conditional entropy of the golden label probabilities given the predicted label (Appendix~\ref{sec:formulas}). The overall entropy was \texttt{3.5} bits, i.e. about \texttt{11} Yoruba labels exist as viable options per prediction. However, for some of the labels it was much smaller, thus signifying almost one-to-one mapping from predicted labels to Yoruba (Table~\ref{table:entfreq}). The number would have likely been even smaller if not for deletions, draw a large share from the probability mass for most sounds. Another factor raising the expected uncertainty is that the sounds that can map to multiple Yoruba labels, e.g. \ipa{/m, l, w/}, are among the most frequent ones. (Figure~\ref{fig:predphonefreq})
 
-We also look into the simultaneous projection of Yoruba and English embeddings in the same space, by first fitting the transform based on the English data, and then reducing the Yoruba data, collecting Euclidian distances between the common phonemes. After running the projection several times, we find that the distances we obtain are consistent across trials, but it is difficult to extract a common pattern.
+All of the back vowels, whose frequent confusions we mentioned above, are now among the most certainly transferrable. This means that the high confusion entropy observed actually stems from the sheer amount of possible vowel segments in English. When English partitions the vowel space to \ipa{/a, ɑ, æ, ʌ/}, they all are included in Yoruba \ipa{/a/}. Ambiguous mappings (indicated by high entropy) also occur for sounds absent in Yoruba: IPA \ipa{/ʔ, ɹ, ə˞, ð, θ/} have no clear correspondence in Yoruba to gravitate to. This mostly applies to consonants, which coincides with a commonly stated \cite{hayes2009, ladefoged2011} intuition that vowel realizations distribute continuously in the acoustic space, while consonant allophones belong to one of some discrete targets.
 
-Since projections obtained through UMAP tend to be hard to interpret, we then look into whether the Euclidian distance between phonemes in the reduced dimensional space is correlated to the feature weighing scheme we implemented. We find that these variables have a significant p-value for both datasets, and are positively correlated. Since no definite overarching pattern can be established the actual embeddings, we posit that this might be due to the distribution of phonemes in the data and leave the elaboration to further studies. 	
+\begin{table}[ht]
+\centering
+\caption{Mapping entropy and frequentmost correspondences.}
+\label{table:entfreq}
+\begin{tabular}{c l c @{\hskip 1.5em} c l c}
+\toprule
+\textbf{Gold} & \textbf{Corr} & \textbf{H} & \textbf{Gold} & \textbf{Corr} & \textbf{H} \\
+\midrule
+\ipa{a}  & \ipa{[a, ã]} & 1.96 & \ipa{ɨ} & \ipa{[i, a]} & 3.41 \\
+\ipa{ɑ}  & \ipa{[a, ã]} & 2.01 & \ipa{ʉ} & \ipa{[u, ũ]} & 3.41 \\
+\ipa{æ}  & \ipa{[a, e]} & 2.32 & \ipa{ɪ} & \ipa{[ɪ, i]} & 3.48 \\
+\ipa{ʃ}  & \ipa{[ʃ, s]} & 2.33 & \ipa{ə˞} & \ipa{[ʊ, ɔ]} & 3.52 \\
+\ipa{ʌ}  & \ipa{[a, e]} & 2.49 & \ipa{n} & \ipa{[n, d]} & 3.59 \\
+\ipa{t͡ʃ} & \ipa{[d͡ʒ, ʃ]} & 2.63 & \ipa{z} & \ipa{[s, d]} & 3.63 \\
+\ipa{d͡ʒ} & \ipa{[d͡ʒ, ʃ]} & 2.80 & \ipa{ɹ} & \ipa{[j, l]} & 3.66 \\
+\ipa{i}  & \ipa{[i, e]} & 2.82 & \ipa{t} & \ipa{[t, d]} & 3.67 \\
+\ipa{o}  & \ipa{[o, ɔ]} & 3.05 & \ipa{θ} & \ipa{[s, t]} & 3.69 \\
+\ipa{ʊ}  & \ipa{[ʊ, ɔ]} & 3.06 & \ipa{ʔ} & \ipa{[h, k]} & 3.73 \\
+\ipa{ɔ}  & \ipa{[ɔ, o]} & 3.06 & \ipa{w} & \ipa{[w, u]} & 3.75 \\
+\ipa{ɛ}  & \ipa{[ɛ, e]} & 3.07 & \ipa{m} & \ipa{[m, b]} & 3.78 \\
+\ipa{k}  & \ipa{[k, ɡ]} & 3.09 & \ipa{ŋ} & \ipa{[ŋ, ɡ]} & 3.80 \\
+\ipa{ʒ}  & \ipa{[ʃ, d͡ʒ]} & 3.10 & \ipa{d} & \ipa{[d, t]} & 3.82 \\
+\ipa{ə}  & \ipa{[ɔ, ɛ]} & 3.28 & \ipa{l} & \ipa{[l, d]} & 3.91 \\
+\ipa{ɜ˞} & \ipa{[ʊ, ɔ]} & 3.28 & \ipa{b} & \ipa{[b, m]} & 3.91 \\
+\ipa{s}  & \ipa{[s, t]} & 3.28 & \ipa{j} & \ipa{[j, i]} & 3.95 \\
+\ipa{e}  & \ipa{[e, i]} & 3.31 & \ipa{ɡ} & \ipa{[ɡ, k]} & 4.05 \\
+\ipa{u}  & \ipa{[u, ũ]} & 3.32 & \ipa{ð} & \ipa{[d, l]} & 4.16 \\
+\ipa{f}  & \ipa{[f, s]} & 3.33 & \ipa{h} & \ipa{[h, k]} & 4.25 \\
+\ipa{p}  & \ipa{[b, f]} & 3.36 & \ipa{v} & \ipa{[f, b]} & 4.26 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\subsection{Discussion}
+\subsection{Phone embeddings space}
+After having fully trained the model, we can take a look into the representations it has formed for each item of the vocabulary by collecting phone embeddings from the last layer. We attempt to plot these phone vectors in an easily interpretable manner, in order to investigate what the internal model representations for each language might look like. Ideally, the partition in the space would reflect similarities and differences for each target language, possibly even extending to reflect a scale of articulatory features. We run inference to produce phone embeddings from the last layer output (log probabilities in the phoneme classes space) and plot these using dimensionality reduction.
 
-<add notes about specific sounds and how they relate to Yoruba>
-<add that predicted vowels are often confused: this is reflected in PPG embeddings and entropies, this can be because of our alignment model,
-or because english transcription distinguishes unreasonable amount of vowel classes, or because vowel harmony>
-<this can also relate to structurally meaningful features (lax/tense in transcription is actually not important in yoruba, ATR contrast is)>
+\paragraph{Phone posteriogram embeddings} Note that to obtain the representations below, we only selected items that were correctly predicted, after the CTC collapse. It is entirely possible that some matching predictions are skipped in the process, but since we have not yet established a way to decode the noise that was generated, we limit ourselves to accurately aligned pairs. Unfortunately this excludes the phonemes unique to each language, like \ipa{/ũ/} and \ipa{/k͡p/}.
 
-<add here why need to test with random sequences and why they get good results>
-<theoretical issue: aligning for closeness then evaluate closeness by alignment>
-<importance of length for PER>
+To represent each phoneme token, we take only the first time stamp in which it is predicted. It runs against the intuition we have from spectrograms that the early time stamps of a phone are not the most characteristic, but we consider it a suitable representation. By extending the extraction to all the time frames in one example (including frames where the highest probability lies on the blank token), we can obtain a spectrogram-like visualization of the shifting of the conditional probabilities over time (Figure~\ref{fig:ppg}). As a product of CTC decoding, these posteriograms appear to be different from spectrograms. Since the model is allowed to predict blank symbols, it tends to allocate blank symbols for majority of frames, while producing occasional spikes for non-blank phonemes. These spikes often appear at the time steps where phoneme predictions first become feasible: these are used as embeddings.
 
- PER distribution graph draws positively-skewed bell curve. Together with equi-weighted features and deletion still set as 1.0, PER decreased to 0.35. As mentioned above, adapting deletion cost from 1.0 to 0.5 made the metric even lower to 0.33.
+We employ \textit{UMAP} to obtain 2-dimensional embeddings from the 42-dimensional TIMIT and 23-dimentional Yoruba predictions, for which we obtain the mean by phoneme. We settled on UMAP since it maintains the non-linear assumption of t-SNE regarding the data while being less dependent on initialization. \cite{umap} While both plots seem to group similar sounds together to an extent, comparing inference simultaneously on both datasets remains tricky due to 1) the different probability distributions and the difference in dataset sizes 2) while UMAP remains an efficient dimensionality reduction method, it is unclear whether plotting always reflects similarity through clustering. \cite{umapClustering} We can see that in some cases, similar sounds do tend to cluster, but the extent to which these patterns can be identified different in both datasets.
 
-Nulligram PER is further investigated by artifically creating a Yoruba nulligram in which the order of phonemes was randomized. The aim was to examine whether co-occurrence patterns of certain phonemes influence model performance. If the PER of nulli-gram corpus is higher than that of default PER, it suggests that phoneme collocation contributes positively to phoneme recognition. At the very least, it would indicate that the naturally occurring co-occurrence patterns are not so complex as to hinder recognition performance.
-Nulligram PER was reported to be 0.36, which is 0.2 higher than default PER. This would in turn suggest that natural sequential distribution of phonemes helps predicting them.
-\textbf{text result - PER, ACC}
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{ppg20.png}
+    \caption{Phone posteriograms for one Yoruba sentence, after softmax, first 14 classes}
+    \label{fig:ppg}
+\end{figure}
+
+\paragraph{Yoruba phones} In the reduced Yoruba space (Figure~\ref{fig:yoremb}), cardinal vowels cluster in the same space in the graph, with their distance mostly corresponding to their feature weighted equivalent. We see how natural classes of phonemes group together in space: the sibilants \ipa{/s/} and \ipa{/ʃ/}, plosives, sonorants, palatals. Incidentally, in that arrangement, the \textit{y}-axis clearly corresponds to sonority hierarchy. \cite{hayes2009} It can also be argued that the \textit{x}-axis loosely represents a gradual backness scale, when including acoustically related parameters like lip protrusion, in the case of labials.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{yorlast.png}
+    \caption{Yoruba Phone Embeddings (with English correspondences only)}
+    \label{fig:yoremb}
+\end{figure}
+
+\paragraph{English phones} As for the TIMIT space (Figure~\ref{fig:timitemb}), these patterns are less clear. It is not easy to assign one linguistic feature to the axes, like sonority or backness. The natural groupings of sounds are still observable, but exact composition and number of clusters differs from Yoruba: nasals group separately from approximants and \ipa{/l/}; \ipa{/p/} is separated from other voiceless stops. As for vowels, while \ipa{/ə, ʌ/} and \ipa{/i, ɪ/}  (respectively positional allophones and a tense-lax pair vowel) are grouped together, it can be pointed out that \ipa{/a, o, e/} appear as a detached cluster. Oddly, all of these labels belong only to nuclei of diphthongs, split after data processing, which has to be linked as to why they occupy their own space in the plot. It is thus probable that the differing annotation schemes for both datasets (with more fine-grained distinctions for TIMIT) partly contribute to this.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{timitultphone.png}
+    \caption{Timit Phone Embeddings}
+    \label{fig:timitemb}
+\end{figure}
+
+\paragraph{Yoruba and English} The fact that the clusters differ is somewhat trivial, considering that the UMAP reduces space differently for different subsets of labels, and Yoruba clustering did not have to account for relations with all TIMIT sounds. Hence or whence we also look into the simultaneous projection of Yoruba and English embeddings in one space, by first fitting the transform based on the English data, and then reducing the Yoruba data, collecting Euclidian distances between the common phonemes. After running the projection several times, we find that the distances we obtain are consistent across trials, but it is difficult to extract a common pattern (Figure~\ref{fig:embtogether}, Table ~\ref{vowel_distsim}).
+
+\paragraph{Distances} To investigate this further, we decided to run a correlation test between the Euclidian distance between phones after dimensionality reduction and feature weight. Figures \ref{fig:correng}, \ref{fig:corryor} show that there is a significant correlation between the two variables, with the correlation coefficient being lower for Yoruba than it is for English (Table~\ref{fig:pearson}). This reflects the fact that the English label inventory represents more varied sounds than the Yoruba predicted values, helping establish the correlation pattern during fitting. While this possibly shows that our presentations are reliable and in line with the framework we establish, this remains obscured by the fact that the plot for English is not easily interpretable.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{timitcor.png}
+    \caption{Correlation between Euclidian distance of embeddings and Weighted Hamming distance (English). (Scatter: phone tokens in the subsample, jittered)}
+    \label{fig:correng}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{yorlastcor.png}
+    \caption{Correlation between Euclidian distance of embeddings and Weighted Hamming distance (Yoruba). (Scatter: phone tokens in the subsample, jittered)}
+    \label{fig:corryor}
+\end{figure}
+
+\section{Discussion}
+
+\subsection{Closer look on confusion and correspondence patterns}\label{sec:pmi}
+One of the pros of the conditional entropy metrics from Results~\ref{sec:entropy} for assessing transfer is that they does not require the correspondences to be phonologically accurate---the only condition is that they are unambiguous. The drawback of this is that low entropy could arise from systematic bias toward over-represented classes rather than accurate transfer. Let us consider in detail what phonologically non-trivial associations are found in alignments and how they reflect the expected differences between English and Yoruba discussed in Introduction~\ref{sec:intro}.
+
+\paragraph{PMI} To measure association we employ a symmetric measure related to the conditional entropies. Pointwise Mutual Information (PMI) computes how much it is not a coincidence for two values to appear together. \citep[p.~14]{jurafsky2023}, \citep[p.~263--265]{jaeger2013} It is calculated by dividing the joint probability by the product of two marginal probabilities (Appendix~\ref{sec:formulas}). In a cross-lingual transfer-learning setting, since two distributions do not have identical event space, we used the co-ocurrence matrix (Section~\ref{sec:entropy}) to find the joint and marginal probabilities. The probability of phonemes varies greatly, therefore we normalize PMI by dividing it with negative log-likelihood of the joint probability (the theoretical maximum \citep[p.~61]{bentz2018}). NPMI shows what correspondences are statistically meaningful even when the raw counts are extremely low and can be taken as a measure of correlation. Values between \texttt{-1} and \texttt{0} imply that the co-occurrence of the phonemes from two variables in alignments is more scarce than random, and values between \texttt{0} and \texttt{1} suggest that two values co-occur more often than random, so a successful transfer shows each class in predicted map to a certain Yoruba label, and in a trivial transfer the association would be with the closest sound.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{NormalisedPMI.png}
+    \caption{Normalized PMI. Turquoise denotes the encoding efficiency gain from aligning, magenta denotes the gain from not aligning. Grey stands for the alignments that have never occurred (we can assume negative values).}
+    \label{fig:normpmi}
+\end{figure}
+
+\paragraph{Interpretation}
+
+The first look reveals a strong cyan diagonal in a lilac field: these are the correspondences between predicted phones and their trivial Yoruba counterparts. No suspicious associations dwell in the off-diagonal areas, even among the least frequent phones: phonological closeness rather than noise accounts for the information-carrying phone pairs.
+
+The rows and columns labelled \O\;stand for alignments with deletion and insertion, respectively. All vowels strongly disassociate with deletion. This is likely be due to the CV syllable structure in Yoruba (ref. hypothesis (iv) in Section~\ref{sec:hypo}). The model generates a lot of consonant clusters, in accordance with English phonotactics, which then undergo deletion in order to align the vowels. The frequency of insertions, on the opposite, seems to be unrelated to the phoneme type. One strange exception is Yoruba \ipa{/ɾ\textasciitilde r\textasciitilde ɹ/}. The only \textit{ad-hoc} explanations that come to mind are that our model misses the Yoruba tap realisations, and they are short, or that it predicts an English rhoticized vowel instead of it. English phonemes similar to Yoruba's double-articulated stops, \ipa{/p, b, k, g/}, are occasionally deleted, but no more than other consonants. This likely disproves the hypothesis (iii) (Section~\ref{sec:hypo}) derived from our cognition, that double-articulated stops will be recognized as sequences. A frequent correspondence with labio-velar stops \ipa{/ɡ͡b, k͡p/} unexpectedly, but logically turned out to be the labio-velar approximant \ipa{/w/}. Other labial consonants were also associated.
+
+Generally all consonants without close place/manner counterparts show higher entropy. Thus, \ipa{/θ/} is divided equally between \ipa{/f, s, t/}. The rather sonorant \ipa{/ð, ŋ/} are pretty much random. The glottal stop is split between \ipa{/k, h/} and being deleted; \ipa{/p/} is between \ipa{/k͡p, k, f, b/}. These are all examples of migrating to some sort of place/manner compromise. Contrast this with vowels: all vowels, regardless if they exist in Yoruba, have high entropy (see also Section~\ref{sec:inference}).
+
+A clear tendency is that the VOT is transferred not one-to-one, but regularly: Yoruba lacks voiced fricatives, but when \ipa{/z, ʒ, v/} appear in predictions, they consistently associate with their voiceless pairs, and sometimes with place pairs. Predicted voiced stops map equally to voiceless and voiced Yoruba stops, while voiceless always map to voiceless.
+
+Liquids and nasals form a ``connected cluster'' of confusions; it is possibly but not necessarily related to their partial allophony in Yoruba, where nasality often spreads (see hypothesis (v) \ref{sec:hypo}). In general, more sonorant phones in TIMIT have higher entropy here, and vowels are even more interrelated, slightly grouping by backness.
+
+Yoruba nasal \ipa{ã} is associated with o-like vowels, since \ipa{ã} and \ipa{ɔ̃} are allophones in Yoruba (see Section~\ref{sec:dataset} Datasets). This probably indicates that in the varieties prominent in Common Voice the mid allophone occurs more often (something not stated in \citet{AllenPulleyblankAjiboye2013, Adesola2024, Akinbo2022, Przezdziecki2005} ---the body of works we examined). Other nasal vowels associate with their oral bases (\ipa{/ĩ/} with i-like, etc.), but with weaker certainty. They are aligned with approximants more often: \ipa{/ũ/} with \ipa{/w/}, and \ipa{/ĩ/} with \ipa{/j/}.
+
+\subsection{How to benchmark our results}
+A challenge in evaluating our model and drawing conclusions about phonology lies in circular nature of alignments. We first use theoretical assumptions about phoneme closeness for our alignment algorithm. Then we treat these alignments like the actual correspondence (e.g., as if the model assigned mentioned the predicted label exactly during the time span of the golden Yoruba label) to speculate which sounds the model was not able to recognize correctly. These alignments are not in fact related to the traceable causal/computational link between in- and output during inference. In a way, the alignment being theoretically sound (cf. Section~\ref{sec:pmi}) is not surprising, because it is delivered via \textit{theory-based} edit distance.
+
+Refer to Appendix~\ref{sec:predictions} for an example of alignment. Impressionistically, although the model output is clearly linked to the input, the alignments are not always intuitively correct. Indeed, they are proven minimal given the feature model, but it does not guarantee to correspond to a linguists intuition. This is a common issue in the pure feature-based \textit{Lev} alignments (Dellert, p.c.). More traceable options include alignment with some kind of supervised training on a human-aligned data. \citet{nerbonne2010} reports good alignment results with log-transformed feature weights. Another option is to embed some pre-knowledge of phonotactics in the cost functions by assigning weights to different features: say, to improve resolution of consonant clusters, knowing the Yoruba \textbf{CV} syllable structure, we can make deleting consonants cheap, while changing consonants to vowels costly. \citet{jaeger2013} argues for an empirical approach free from feature-theory assumptions. 
+
+Combining a feature model with minimal distance leads to the overall fwPER being hard to interpret. For example, we do not know the expected cost for two random phonemes, so, unlike in the regular PER, there is no intuition such as ``every third letter is wrong''. It is also not clear how much minimizing the alignment lowers the fwPER on average.
+
+In order to establish a theory-light frame of reference within which we can benchmark our model's fwPER performance, we compare it with the fwPER of random strings. We evaluated 3 different randomly generated ``predictions'' with the same cost settings as in Results~\ref{sec:inference}.
+
+First, we took the exact lengths of the sentences from our predictions, to simulate some understanding of time, then we tested: (1) generating random sequences of TIMIT labels of that length, sampling from a uniform distribution (``nulligrams'') (2) generating that using the unigram probabilities of the TIMIT labels in our predictions. This way we had the same predictions, but filled with random letters, unrelated to the audio input whatsoever. (3) making a classic bigram model based on actual predictions, generating strings of random length until the EOS symbol.
+
+The fwPER of the equal probabilities and unigrams is surprisingly close to ours: \texttt{0.4} and \texttt{0.39}. The difference of the  distribution and median from the model's performance (Figure~\ref{fig:perdist}) is noteworthy: in predictions the positively-skewed bell curve has longer tails on both sides; the random alignments gravitate more towards the average. (Figures~\ref{fig:nulliprob}, \ref{fig:uniprob}) The intuition allows us to say that the model predictions are not random: it seems, the random simulations never achieve low PER values like \texttt{0.2} to \texttt{0.3}. A qualitative look at the alignments in Appendix~\ref{sec:predictions} suggests that the prediction outcomes are better and indeed linked to the input sound.
+
 \begin{figure}
     \centering
     \includegraphics[width=0.75\linewidth]{model_per_distribution.png}
     \caption{PER Distribution}
-    \label{fig:placeholder}
+    \label{fig:perdist}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=0.75\linewidth]{nulligram_PER_distribution.png}
     \caption{Equal probability PER Distribution}
-    \label{fig:placeholder}
+    \label{fig:nulliprob}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=0.75\linewidth]{unigram_PER_distribution.png}
     \caption{Unigram PER Distribution}
-    \label{fig:placeholder}
-\end{figure}
-
-- yoruba phoneme frequency
-\begin{figure}
-    \centering
- \includegraphics[width=1\linewidth]{YorPhonemeFrequency.png}
-    \caption{Yoruba Phoneme Frequency}
-    \label{fig:placeholder}
-\end{figure}
-
-- Normalized PMI
-\begin{figure}
-    \centering
-    \includegraphics[width=1\linewidth]{NormalisedPMI.png}
-    \caption{Normalized PMI}
-    \label{fig:placeholder}
-\end{figure}
-
-- confusion entropy
-\begin{table}[h!]
-\centering
-\caption{Confusion Entropy}
-\begin{tabular}{lc}
-\toprule
-\textbf{Label} & \textbf{H} \\
-\midrule
-\ipa{∅}    & 4.64 \\
-\ipa{ã}   & 4.55 \\
-\ipa{ɔ}    & 4.53 \\
-\ipa{a}    & 4.52 \\
-\ipa{o}    & 4.41 \\
-\ipa{h}    & 4.33 \\
-\ipa{l}    & 4.26 \\
-\ipa{ũ}   & 4.21 \\
-\ipa{k͡p}  & 4.18 \\
-\ipa{ɡ}    & 4.18 \\
-\ipa{t}    & 4.16 \\
-\ipa{u}    & 4.16 \\
-\ipa{f}    & 4.14 \\
-\ipa{ɡ͡b}  & 4.13 \\
-\ipa{k}    & 4.10 \\
-\ipa{ɛ}    & 4.09 \\
-\ipa{r}    & 4.07 \\
-\ipa{n}    & 4.03 \\
-\ipa{d}    & 4.00 \\
-\ipa{ɛ̃}   & 3.99 \\
-\ipa{ĩ}   & 3.93 \\
-\ipa{j}    & 3.92 \\
-\ipa{e}    & 3.87 \\
-\ipa{w}    & 3.82 \\
-\ipa{i}    & 3.81 \\
-\ipa{ʃ}    & 3.80 \\
-\ipa{b}    & 3.76 \\
-\ipa{d͡ʒ}  & 3.69 \\
-\ipa{m}    & 3.67 \\
-\ipa{s}    & 3.40 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=1\linewidth]{timitultphone.png}
-    \caption{Timit Phone Embeddings}
-    \label{fig:placeholder}
+    \label{fig:uniprob}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=1\linewidth]{yorlast.png}
-    \caption{Yoruba Phone Embeddings}
-    \label{fig:placeholder}
+    \includegraphics[width=0.75\linewidth]{bigramPERdistribution.png}
+    \caption{Bigram PER Distribution}
+    \label{fig:biprob}
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=1\linewidth]{yoruba_eng_plot.png}
-    \caption{Vowel distances between English and Yoruba}
-    \label{fig:placeholder}
-\end{figure}
+The length of the produced output is critical for good result. You can see how PER for the birgam generation (Figure~\ref{fig:biprob}), made without fixed sequence length, blew up drastically. This suggests that fixing the model's tendency to over-generate in noisy circumstances is the most relevant way to reduce the error. 																																																																																																																																										
 
-\begin{figure}
-    \centering
-    \includegraphics[width=1\linewidth]{timitcor.png}
-    \caption{Correlation between Euclidian distance of embeddings and Weighted Hamming distance (English)}
-    \label{fig:placeholder}
-\end{figure}
+\section{Limitations}\label{sec:limitation}
+For future reference, we believe that our model could be further improved by dedicating more attention to the over-generation problem, and possibly address it at the pre-training stage with a modified pre-training objective (or simply a denoising procedure at the data preprocessing stage), or by investigating whether there are some repeating patterns linked to over-generation. This would then in turn help improve the quality of alignment for the evaluation step. Moreover, having datasets that agree on the granularity on the description would be helpful, as this would facilitate the mapping and reduce the risk of inducing biases.
+Although the pre-training stage should in principle be as general as possible, introducing phonotactic constraints through a LM model would likely also contribute to reduce noise during generation.
+In regards with the Common Voice dataset specifically, we can also mention the size of the corpus in comparison to the English one, since the 0.25 split we used for English for evaluation is almost twice the size of all the Yoruba splits combined. Moreover, although we deem Epitran to be suitable for the G2P step (its paper mentions it being competitive with the FST-based baselines for ASR), it would be interesting to see whether a more-linguistically informed model, perhaps a WFST would yield a different performance.
+Another direction we could was to use the embeddings obtained to see whether they latently contain some information about Yoruba which was left out from the annotations we used. For instance, it would be interesting to see whether tone can be accurately predicted by feeding the final representations into a classifier, investigating whether the architecture was sufficient for the model to internalize this additional information.
 
-\begin{figure}
-    \centering
-    \includegraphics[width=1\linewidth]{yorlastcor.png}
-    \caption{Correlation between Euclidian distance of embeddings and Weighted Hamming distance (Yoruba)}
-    \label{fig:placeholder}
-\end{figure}
+We of course encourage the reproduction of this study on different datasets, be it for Yoruba or other languages.
 
-\begin{table}[h]
-\centering
-\caption{Pearson correlation between vowel distance and another variable}
-\begin{tabular}{lrr}
-\toprule
-\textbf{Language} & \textbf{Correlation Coefficient ($r$)} & \textbf{$p$-value} \\
-\midrule
-English & $0.47$ & $0.0002$ \\
-Yoruba  & $0.49$ & $0.004$ \\
-\bottomrule
-\end{tabular}
-\end{table}
+\section{Conclusion}
 
+We trained an audio to IPA ResNet–BiLSTM CTC recognizer on TIMIT only (\texttt{0.0339} on English validation set), taking inspiration from \citet{xu2021}, 
+to probe zero-shot transfer to Yoruba under a linguistically-motivated feature-weighted mapping scheme. Tackling the problem of different inventories, 
+we applied a modified version of feature-weighted Levenshtein algorithm for evaluation. The system reaches ≈\texttt{0.34} PER on Yoruba (median \texttt{0.30}). 
+We reduced the original model to a third of its size (from 1.55 to 0.8 M. parameters), allowing for faster training and inference, 
+which still preserved the signal needed for cross-lingual transfer. 
 
+We introduce two evaluation metrics based on conditional entropy: confusion and mapping entropy. Despite relatively high confusion entropy, indicating 
+inexact predictions, the mapping entropy seems low, indicating that Yoruba phonemes are unambiguously inferred from the predictions. This can reflect that English's 
+finely split vowel space and overly narrow transcription tradition collapses toward Yoruba’s coarser categories. Our analysis of (N)PMI confirms the assumption of 
+phonology-driven transfer: correspondences track place/manner similarity, voicelessness transfers more reliably than voicing (due to VOT differences), 
+labio-velar stops often surface as \ipa{/w/}. At the same time, the model over-generates, partly because of pauses outside of utterance and extra-linguistic noise in the evaluation set, partly because the transfer keeps the tendency for 
+consonant clusters, systematically breaking the syllable structure of Yoruba.
 
-\begin{table}
-\caption{Vowel distances between English and Yoruba (sorted by similarity)}
-\centering
-\begin{tabular}{lr}
-\toprule
-Vowel & Distance \\
-\midrule
-u & 0.095 \\
-ɡ & 0.170 \\
-k & 1.119 \\
-d & 1.280 \\
-m & 1.424 \\
-t & 1.571 \\
-j & 1.633 \\
-s & 1.800 \\
-ɔ & 1.947 \\
-ɛ & 1.971 \\
-b & 1.993 \\
-h & 2.549 \\
-n & 2.887 \\
-w & 2.907 \\
-					
-e & 3.059 \\
-ʃ & 3.278 \\
-o & 3.291 \\
-l & 3.363 \\
-i & 3.590 \\
-a & 3.643 \\
-f & 5.945 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=1\linewidth]{Yoruba_Embeddings.png}
-    \caption{Yoruba Phone Embeddings}
-    \label{fig:placeholder}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=1\linewidth]{yoruba_eng_plot.png}
-    \caption{Yoruba and English embeddings plotted in the same space}
-    \label{fig:placeholder}
-\end{figure}
-
-
-
-
-\section*{Limitations}
-
-For future reference, we believe that our model could be further improved by dedicating more attention to the over-generation problem, and possibly address it at the pre-training stage with a modified pre-training objective, or by investigating whether there are some repeating patterns linked to over-generation. This would then in turn help improve the quality of alignment for the evaluation step.
-As we did not keep track of the train-test split, the impact that this has on the evaluation step is unclear. Re-producing it with a proper split might yield more comprehensible results, especially when it comes to posterior probabilities.
-We also encourage the reproduction of this study on different datasets, be it for Yoruba or other languages.
-
+Finally, we noted a methodological circularity: alignments are theory-driven (based on feature phonology) and not causal chain-driven, which biases the further conclusions about phonology into confirming the pre-existing notions. This nature of the alignments remains a problem, as long as they are are not obtained through the time-aligned test set or checked for intuitiveness by supervised training or curation. The fwPER evaluation lacks the easy interpretation of PER. Nonetheless, random baselines and analysis of PPGs suggest that our model's predictions are genuinely signal-bearing.
 
 \bibliographystyle{acl_natbib}
 \bibliography{main} % your refs.bib
 
 \appendix
-\section{Appendix}
-\label{sec:appendix}
-\subsection{Appendix. A}
-
+\section{English inventory}\label{sec:appendixa}
 \begin{table}[h!]
 \centering
-\caption{TIMIT to IPA mapping}
-\begin{tabular}{>{\ttfamily}l >{\ipafont}l> {\ipafont}l}
+\caption{TIMIT to IPA mapping (folded into two columns)}
+\label{timit2ipa}
+\begin{tabular}{>{\ttfamily}l >{\ipafont}l >{\ipafont}l @{\hskip 1.5em} >{\ttfamily}l >{\ipafont}l >{\ipafont}l}
 \toprule
-\textbf{TIMIT} & \textbf{IPA} & \textbf{IPA (adjusted)}\\
+\textbf{TIMIT} & \textbf{IPA} & \textbf{Our} & \textbf{TIM} & \textbf{IPA} & \textbf{Our} \\
 \midrule
-aa   & \ipa{ɑ}   & \ipa{ɑ}\\
-ae   & \ipa{æ}   & \ipa{æ}\\
-ah   & \ipa{ʌ}   & \ipa{ʌ}\\
-ao   & \ipa{ɔ}   & \ipa{ɔ}\\
-aw   & \ipa{aw}  & \ipa{a + w}\\
-ay   & \ipa{aj}  & \ipa{a + j}\\
-ax   & \ipa{ə}   & \ipa{ə}\\
-axr  & \ipa{ə˞}  & \ipa{ə}\\
-eh   & \ipa{ɛ}   & \ipa{ɛ}\\
-er   & \ipa{ɜ˞}  & \ipa{ɜ˞}\\
-ey   & \ipa{ej}  & \ipa{e + j}\\
-ih   & \ipa{ɪ}   & \ipa{ɪ}\\
-ix   & \ipa{ɨ}   & \ipa{ɨ}\\
-iy   & \ipa{i}   & \ipa{i}\\
-ow   & \ipa{ow}  & \ipa{o + w}\\
-oy   & \ipa{ɔj}  & \ipa{ɔ + j}\\
-uh   & \ipa{ʊ}   & \ipa{ʊ}\\
-uw   & \ipa{u}   & \ipa{u}\\
-ux   & \ipa{ʉ}   & \ipa{ʉ}\\
-ax-h & \ipa{ə̥}  & \ipa{ə}\\
-bcl  & \ipa{b̚}  & \ipa{b}\\
-dcl  & \ipa{d̚}  & \ipa{d}\\
-eng  & \ipa{ŋ̍}  & \ipa{ŋ}\\
-gcl  & \ipa{ɡ̚}  & \ipa{g}\\
-hv   & \ipa{ɦ}   & \ipa{h}\\
-kcl  & \ipa{k̚}  & \ipa{k}\\
-pcl  & \ipa{p̚}  & \ipa{p}\\
-tcl  & \ipa{t̚}  & \ipa{t}\\
-pau  & \ipa{|}   & \ipa{–}\\
-epi  & \ipa{||}  & \ipa{–}\\
-h\#  & \ipa{/}   & \ipa{–}\\
-b    & \ipa{b}   & \ipa{b}\\
-ch   & \ipa{t͡ʃ} & \ipa{t͡ʃ}\\
-d    & \ipa{d}   & \ipa{d}\\
-dh   & \ipa{ð}   & \ipa{ð}\\
-dx   & \ipa{ɾ}   & \ipa{r}\\
-el   & \ipa{l̩}  & \ipa{l}\\
-em   & \ipa{m̩}  & \ipa{m}\\
-en   & \ipa{n̩}  & \ipa{n}\\
-f    & \ipa{f}   & \ipa{f}\\
-g    & \ipa{g}   & \ipa{g}\\
-hh   & \ipa{h}   & \ipa{h}\\
-h    & \ipa{h}   & \ipa{h}\\
-jh   & \ipa{d͡ʒ} & \ipa{d͡ʒ}\\
-k    & \ipa{k}   & \ipa{k}\\
-l    & \ipa{l}   & \ipa{l}\\
-m    & \ipa{m}   & \ipa{m}\\
-n    & \ipa{n}   & \ipa{n}\\
-nx   & \ipa{ɾ̃}  & \ipa{n}\\
-ng   & \ipa{ŋ}   & \ipa{ŋ}\\
-p    & \ipa{p}   & \ipa{p}\\
-q    & \ipa{ʔ}   & \ipa{ʔ}\\
-r    & \ipa{ɹ}   & \ipa{r}\\
-s    & \ipa{s}   & \ipa{s}\\
-sh   & \ipa{ʃ}   & \ipa{ʃ}\\
-t    & \ipa{t}   & \ipa{t}\\
-th   & \ipa{θ}   & \ipa{θ}\\
-v    & \ipa{v}   & \ipa{v}\\
-w    & \ipa{w}   & \ipa{w}\\
-wh   & \ipa{ʍ}   & \ipa{ʍ}\\
-y    & \ipa{j}   & \ipa{j}\\
-z    & \ipa{z}   & \ipa{z}\\
-zh   & \ipa{ʒ}   & \ipa{ʒ}\\
+aa   & \ipa{ɑ}   & \ipa{ɑ}   & ch   & \ipa{t͡ʃ} & \ipa{t͡ʃ} \\
+ae   & \ipa{æ}   & \ipa{æ}   & d    & \ipa{d}   & \ipa{d} \\
+ah   & \ipa{ʌ}   & \ipa{ʌ}   & dh   & \ipa{ð}   & \ipa{ð} \\
+ao   & \ipa{ɔ}   & \ipa{ɔ}   & dx   & \ipa{ɾ}   & \ipa{r} \\
+aw   & \ipa{aw}  & \ipa{a + w} & el   & \ipa{l̩}  & \ipa{l} \\
+ay   & \ipa{aj}  & \ipa{a + j} & em   & \ipa{m̩}  & \ipa{m} \\
+ax   & \ipa{ə}   & \ipa{ə}   & en   & \ipa{n̩}  & \ipa{n} \\
+axr  & \ipa{ə˞}  & \ipa{ə}   & f    & \ipa{f}   & \ipa{f} \\
+eh   & \ipa{ɛ}   & \ipa{ɛ}   & g    & \ipa{g}   & \ipa{g} \\
+er   & \ipa{ɜ˞}  & \ipa{ɜ˞}  & hh   & \ipa{h}   & \ipa{h} \\
+ey   & \ipa{ej}  & \ipa{e + j} & h    & \ipa{h}   & \ipa{h} \\
+ih   & \ipa{ɪ}   & \ipa{ɪ}   & jh   & \ipa{d͡ʒ} & \ipa{d͡ʒ} \\
+ix   & \ipa{ɨ}   & \ipa{ɨ}   & k    & \ipa{k}   & \ipa{k} \\
+iy   & \ipa{i}   & \ipa{i}   & l    & \ipa{l}   & \ipa{l} \\
+ow   & \ipa{ow}  & \ipa{o + w} & m    & \ipa{m}   & \ipa{m} \\
+oy   & \ipa{ɔj}  & \ipa{ɔ + j} & n    & \ipa{n}   & \ipa{n} \\
+uh   & \ipa{ʊ}   & \ipa{ʊ}   & nx   & \ipa{ɾ̃}  & \ipa{n} \\
+uw   & \ipa{u}   & \ipa{u}   & ng   & \ipa{ŋ}   & \ipa{ŋ} \\
+ux   & \ipa{ʉ}   & \ipa{ʉ}   & p    & \ipa{p}   & \ipa{p} \\
+ax-h & \ipa{ə̥}  & \ipa{ə}   & q    & \ipa{ʔ}   & \ipa{ʔ} \\
+bcl  & \ipa{b̚}  & \ipa{b}   & r    & \ipa{ɹ}   & \ipa{r} \\
+dcl  & \ipa{d̚}  & \ipa{d}   & s    & \ipa{s}   & \ipa{s} \\
+eng  & \ipa{ŋ̍}  & \ipa{ŋ}   & sh   & \ipa{ʃ}   & \ipa{ʃ} \\
+gcl  & \ipa{ɡ̚}  & \ipa{g}   & t    & \ipa{t}   & \ipa{t} \\
+hv   & \ipa{ɦ}   & \ipa{h}   & th   & \ipa{θ}   & \ipa{θ} \\
+kcl  & \ipa{k̚}  & \ipa{k}   & v    & \ipa{v}   & \ipa{v} \\
+pcl  & \ipa{p̚}  & \ipa{p}   & w    & \ipa{w}   & \ipa{w} \\
+tcl  & \ipa{t̚}  & \ipa{t}   & wh   & \ipa{ʍ}   & \ipa{ʍ} \\
+pau  & \ipa{|}   & \ipa{–}   & y    & \ipa{j}   & \ipa{j} \\
+epi  & \ipa{||}  & \ipa{–}   & z    & \ipa{z}   & \ipa{z} \\
+h\#  & \ipa{/}   & \ipa{–}   & zh   & \ipa{ʒ}   & \ipa{ʒ} \\
+b    & \ipa{b}   & \ipa{b}   &      &           &         \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Appendix. B}
-\label{sec:appendixb}
+\section{Yoruba inventory}\label{sec:appendixb}
 \begin{table}[h!]
 \centering
 \caption{Yoruba IPA inventory}
+\label{yorubaipa}
 \begin{tabular}{>{\itshape}l >{\ipafont}l >{\ipafont}l}
 \toprule
 \textbf{Yoruba} & \textbf{IPA} & \textbf{IPA (adjusted)}\\
@@ -493,12 +485,154 @@ n & \ipa{ŋ} & \ipa{–} \\
 \end{tabular}
 \end{table}
 
-\subsection{Appendix. C}
+\begin{figure}
+    \centering
+ \includegraphics[width=1\linewidth]{YorPhonemeFrequency.png}
+    \caption{Original Yoruba Dataset Phoneme Frequency}
+    \label{fig:yorubaphonefreq}
+\end{figure}
 
-Formula for the substitution cost of two IPA sound vectors.
+\begin{figure}
+    \centering
+ \includegraphics[width=1\linewidth]{PredPhonemeFrequency.png}
+    \caption{After Evaluation Phoneme Frequency}
+    \label{fig:predphonefreq}
+\end{figure}
+
+
+\section{Formulae}\label{sec:formulas}
+
+Formula for the substitution cost of two IPA vectors from PanPhon inventory: English $\vec e$ and Yoruba $\vec y$.
 \[
-\text{wHamming}(\vec e,\vec y)
+\text{dist}(\vec e,\vec y)
 =\frac{\bigl|\{\, i \mid (e_i\neq y_i)\wedge (e_i\neq 0 \lor y_i\neq 0)\,\}\bigr|}
        {\bigl|\{\, i \mid e_i\neq 0 \lor y_i\neq 0 \,\}\bigr|}
+\]\cite{mortensen2016}
+
+Formulae for confusions.
+Formally, let $Y$ denote the gold Yoruba phoneme and $\hat Y$ the predicted TIMIT phoneme var. Each row of the confusion matrix is a probability distribution over predicted labels, conditioned on a given Yoruba label.
+\[
+P(\hat Y=j\mid Y=i) = \frac{|\{(x: Y(x)=i, \hat Y(x)=j)\}|}{|\{(x: Y(x)=i)\}|},
 \]
+Then the confusion entropy is $H(\hat Y\mid Y = i)=- \sum_j P(\hat Y=j\mid Y=i)\log_2 P(\hat Y=j\mid Y=i).$
+
+The metric that we call mapping entropy is the opposite. With the posterior probabilities of gold labels given a certain prediction
+\[
+P(Y=i\mid \hat Y=j)=\frac{|\{(x: Y(x)=i, \hat Y(x)=j)\}|}{|\{(x: \hat Y(x)=j)\}|}
+\]
+the mapping entropy is $H(Y\mid \hat Y=j)=-\sum_i P(Y=i\mid \hat Y=j)\log_2 P(Y=i\mid \hat Y=j).$ With the expectation $H(Y\mid \hat Y)=\sum_j P(\hat Y=j) H(Y \mid \hat Y = j)$, and perplexity $P(Y\mid \hat Y)=2^{H(Y \mid \hat Y)}$. \cite{Bentz2022}
+
+Formula for normalized PMI for a gold sound $y$ and predicted sound $e$ in the co-occurrence counts matrix obtained from alignments.
+$$\text{nPMI}(y, e) = log_2(y, e) - log_2(y) - log_2(e)$$ \cite{jurafsky2023}
+
+\section{Yoruba Prediction Examples}\label{sec:predictions}
+\begin{table}[t]
+\centering
+\caption{Some of the worst predictions (Pred vs.\ Gold).}
+\label{tab:worstpred}
+\setlength{\tabcolsep}{4pt}
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}lYY@{}}
+\toprule
+& \textbf{Pred} & \textbf{Gold} \\
+\midrule
+\textbf{S1} &
+\ipa{ʔ ɪ t ð ə ʔ ɪ ə b i p ɨ ɪ n d u ə b ɨ ɹ ɛ n ə d ɨ ɹ ɪ k ɨ ɨ t ɪ b ʉ p l ɪ n ɨ n t l ʊ d ʉ ɨ ɹ ɹ ɪ t ɨ ŋ b ʉ d b l ɨ b ʔ e j ɹ t ʉ z d i d d n ɡ ɨ n p ɨ p} &
+\ipa{ɡ͡b o ɡ͡b o a w ã d ɔ k i t a t i k͡p ĩ u l a t i w a ɔ n a a b a j ɔ s i a a r u n} \\
+\addlinespace[2pt]
+\textbf{S2} &
+\ipa{ɔ w a w v ə e ʔ j z ʉ w ɪ m ʉ ɹ u u ʔ j i ɹ i ɪ z z ɪ ɪ ə z ʉ ɪ ɨ ɡ u d l ʌ ʌ ʔ ɪ n ɹ i ɪ ɪ z ʉ ɹ h j o} &
+\ipa{i k u n i e r e ɛ ʃ ɛ f u n ɛ̃ i t o b a k͡p a e e j a n} \\
+\addlinespace[2pt]
+\textbf{S3} &
+\ipa{n ɛ ə ʔ ə t æ ʔ ɛ ʔ ə ɹ n p ʊ ɪ t ɪ m p ɜ˞ m ɨ ɹ ɨ z b ɹ a j t o ɨ n t a t o w t ə ɹ ɨ p ɨ n ɛ ɹ o w u t ɛ t ɹ ɨ ɹ n ə ʔ æ t k w h i p ɨ n b ə p ɹ ʉ z k ʉ n z ɨ w ɨ d ɨ ŋ ɨ p n æ t ɪ n k ɨ t ə ə n} &
+\ipa{o l u ɔ m ɔ l o f a r a ɡ͡b a ɔ b ɛ f u n a a r ɛ n i b i i k͡p o l o n ɡ o i b o} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%----------------------------- Best predictions (stacked) ---------------------
+\begin{table}[t]
+\centering
+\caption{Two best predictions}
+\label{tab:bestpred}
+\setlength{\tabcolsep}{4pt}
+\scriptsize
+\begin{tabularx}{\columnwidth}{@{}lY@{}}
+\toprule
+\textbf{Distance} & 6.9 \\
+\textbf{Pred}     & \ipa{u i l e j d i ɑ d u l a w ə m æ d ɑ l æ l i ɹ a j ɨ z s ɔ i ɹ u b ɑ m} \\
+\textbf{Gold}     & \ipa{o r i l ɛ e d e a d u l a w ɔ m ɛ t a l a l o m a a n s ɔ e d e j o r u b a} \\
+\addlinespace[2pt]
+\textbf{Distance} & 6.0 \\
+\textbf{Pred}     & \ipa{o l m i ɑ j ɹ i b i ʌ l w k ʌ b ʌ d͡ʒ u l ɪ b ʊ s i i b ɔ w u} \\
+\textbf{Gold}     & \ipa{o m i j a l e n i ɔ l ɔ k͡p a a r ɔ d͡ʒ ɔ i b ã s i i ɡ͡b o h o} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}
+    \centering
+ \includegraphics[width=1\linewidth]{alignments.png}
+    \caption{Automatic alignment of the median prediction}
+    \label{fig:alignments}
+\end{figure}
+
+\section{More on PPGs}
+
+\begin{table}[h]
+\centering
+\caption{Pearson correlation between vowel distance and another variable}
+\label{fig:pearson}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Language} & \textbf{Correlation Coefficient ($r$)} & \textbf{$p$-value} \\
+\midrule
+English & $0.47$ & $0.0002$ \\
+Yoruba  & $0.49$ & $0.004$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}
+\caption{Vowel distances between English and Yoruba (sorted by similarity)}
+\label{vowel_distsim}
+\centering
+\begin{tabular}{>{\ipafont}lr}
+\toprule
+Vowel & Distance \\
+\midrule
+u & 0.095 \\
+ɡ & 0.170 \\
+k & 1.119 \\
+d & 1.280 \\
+m & 1.424 \\
+t & 1.571 \\
+j & 1.633 \\
+s & 1.800 \\
+ɔ & 1.947 \\
+ɛ & 1.971 \\
+b & 1.993 \\
+h & 2.549 \\
+n & 2.887 \\
+w & 2.907 \\
+					
+e & 3.059 \\
+ʃ & 3.278 \\
+o & 3.291 \\
+l & 3.363 \\
+i & 3.590 \\
+a & 3.643 \\
+f & 5.945 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{yoruba_eng_plot.png}
+    \caption{Yoruba and English consonant embeddings plotted in the same space}
+    \label{fig:embtogether}
+\end{figure}
+
 \end{document} 
