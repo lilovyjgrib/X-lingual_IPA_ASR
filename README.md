@@ -16,7 +16,7 @@ This folder contains scripts to extract the embeddings (last layer representatio
 ### 📁 `models/`:
 This defines the ASRModel class, and provides helper functions for training and evaluation
 
-### 📁 `paper/`:
+### 📁 `zero-shot-final`:
 Contains the paper and associated references/ images in Latex format
 
 
