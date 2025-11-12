@@ -14,7 +14,7 @@ Using a grapheme to phoneme tools or a dataset annotated for phonemes, we train 
 Regardless of the orthography languages draw their sounds from a universal set of types. Linguists worked out how similar these prototypical sounds are. [link] To a lage extent what sound types a language uses is studied, here we draw data from [PHOIBLE](). This implies that, if two languages use a similar set, some skills in recognizing the sounds of one language can be transferred to the sounds of another. How well? 
 
 ---
-##PPGs:
+## `PPGs/`:
 
 This folder contains scripts to extract the embeddings (last layer representation) of correctly predicted phones, as well as code to obtain their dimensionally reduced projection. The script also computes the correlation between the phone representation distance and the distance cost assigned by our fwPER formula.
 
