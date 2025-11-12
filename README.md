@@ -14,53 +14,33 @@ Using a grapheme to phoneme tools or a dataset annotated for phonemes, we train 
 Regardless of the orthography languages draw their sounds from a universal set of types. Linguists worked out how similar these prototypical sounds are. [link] To a lage extent what sound types a language uses is studied, here we draw data from [PHOIBLE](). This implies that, if two languages use a similar set, some skills in recognizing the sounds of one language can be transferred to the sounds of another. How well? 
 
 ---
+##PPGs:
 
-## 🔧 Current Status
+This folder contains scripts to extract the embeddings (last layer representation) of correctly predicted phones, as well as code to obtain their dimensionally reduced projection. The script also computes the correlation between the phone representation distance and the distance cost assigned by our fwPER formula.
 
-This is a basic project skeleton to get the idea.  
-We are currently setting up the pipeline, preprocessing the dataset and planning the logic.
+## `models/`:
+This defines the ASRModel class, and provides helper functions for training and evaluation
 
-## ✅ To do
-
-- ☑️ Preprocess English & Yoruba data, set up target phonemes and correspondences
-- ☑️ Train phoneme model (ResNet-LSTM) on English
-- ☑️ Evaluate on Yoruba
-- [ ] Report
-
-## Dependencies
-\# TBD
-
-## Structure
-
-### `preprocess.ipynb`
-
-
-
-### `train.py`
-
-Trains the CTC. TBD
-- saved checkpoint available at: https://drive.google.com/file/d/1j8LoSxRSc13VpkNQq9B7Dxvcr-3T5Mop/view?usp=sharing
-
-### `predict.py`
-
-Runs a forward pass. TBD
-
-### `utils.py`
-
-- distance calculations ...
-
-### 📁 `results/`
-
-The predictions on the test set are stored in Json here. Visualisations?
+## `paper/`:
+Contains the paper and associated references/ images in Latex format
 
 ### 📁 `dataset/`
 
-- TIMIT data. Full train set for TIMIT (logmel scale) available at: https://drive.google.com/file/d/13k-ACA6Qt9CJ3MZI6Ot6qD9TAUY3mHUA/view?usp=drive_link
-- https://huggingface.co/datasets/mozilla-foundation/common_voice_17_0 
-- Yoruba: https://drive.google.com/file/d/1AIO2wnXT3DId0fQd7JIWI59TNFFkPREI/view?usp=drive_link
-- UPDATED VALIDATION SPLIT (from new conversion scheme): https://drive.google.com/file/d/18gejiyyyx3J1jVGnlOyPeFsgoDXVuoZr/view?usp=drive_link
+The subfolder “mfcc_extraction_script” contains the notebooks we used to obtain the log-mels of the audio data. 
 
-### \#TBD
+Data is available here:
+
+- TIMIT data. Full train set for TIMIT (logmel scale) available at: https://drive.google.com/file/d/13k-ACA6Qt9CJ3MZI6Ot6qD9TAUY3mHUA/view?usp=drive_link
+- Original Hugging Face Dataset https://huggingface.co/datasets/mozilla-foundation/common_voice_17_0 
+- Yoruba data: https://drive.google.com/file/d/18gejiyyyx3J1jVGnlOyPeFsgoDXVuoZr/view?usp=drive_link
+
+### Workload and tasks
+
+| Aaron Bahr | Nikita Beklemishev | Haejin Cho | Kai Seidenspinner | Ilinca Vandici |
+|----|------|------|-------------|--------|
+| MFCC extraction| Metrics, G2P adaptation, edit distance algorithms, model training, PPGs | Model design, Model training, Research, Evaluation, Planning   | Overleaf, Planning| MFCC Extraction, G2P Planning, PPGs |
+
+
 
 ## Authors
 Aaron Bahr
@@ -69,7 +49,7 @@ Haejin Cho
 
 Ilinca Vandici
 
-Kai 
+Kai Seidenspinner
 
 [Nikita L. Beklemishev](github.com/lilovyjgrib) 
 
