@@ -1,28 +1,24 @@
 # X-lingual_IPA_ASR
-Recognize phonemes in Yoruba through a model trained on phonemes in English
 
-Based on TBD. 
+This is a final project for the Automatic Speech Recogntion course offered in Summer 2025 by the University of Tuebingen. 
+We pretrain a BiLSTM-ResNet model on English language data from TIMIT, and evaluate its performance on Yoruba. We provide measures such as cross-entropy and PMI, hoping to disentangle learning errors from transfer errors. 
 
-A project for the Universitaet Tuebingen ASR course (2025) 
-
-## What is a phoneme-level model and IPA?
-
-Using a grapheme to phoneme tools or a dataset annotated for phonemes, we train a CTC model to map audio sequence to a phoneme sequence (with no intermediate steps like standard orthography or vocabulary). For interlinguistic compatibility, we convert the phonemes to be represented in [IPA](). 
 
 ## English → Yoruba and linguistic generalisation
 
 Regardless of the orthography languages draw their sounds from a universal set of types. Linguists worked out how similar these prototypical sounds are. [link] To a lage extent what sound types a language uses is studied, here we draw data from [PHOIBLE](). This implies that, if two languages use a similar set, some skills in recognizing the sounds of one language can be transferred to the sounds of another. How well? 
 
 ---
-## 📁 `PPGs/`:
+### 📁 `PPGs/`:
 
 This folder contains scripts to extract the embeddings (last layer representation) of correctly predicted phones, as well as code to obtain their dimensionally reduced projection. The script also computes the correlation between the phone representation distance and the distance cost assigned by our fwPER formula.
 
-## 📁 `models/`:
+### 📁 `models/`:
 This defines the ASRModel class, and provides helper functions for training and evaluation
 
-## 📁 `paper/`:
+### 📁 `paper/`:
 Contains the paper and associated references/ images in Latex format
+
 
 ### 📁 `dataset/`
 
