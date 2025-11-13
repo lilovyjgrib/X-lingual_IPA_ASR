@@ -16,7 +16,7 @@ This folder contains scripts to extract the embeddings (last layer representatio
 ### 📁 `models/`:
 This defines the ASRModel class, and provides helper functions for training and evaluation
 
-### 📁 `zero-shot-final`:
+### 📁 `zero-shot-final/`:
 Contains the paper and associated references/ images in Latex format
 
 
@@ -34,6 +34,7 @@ Data is available here:
 This contains the string processing functions, ensuring the same conventions for English and Yoruba: we convert ARPABET into IPA, and remove inconsistencies in the Yoruba transcription we obtain from G2P. The functions we used for calculating the weighted fwPER measures, based on the initial PanPhon vectors, as well as the edit distance algorithm are also stored in this folder. 
 
 ### 📁 `fast_conversion_tools/`
+Conversion tools updated: object programming, more features for the feature weights, faster alignment algorithm with AI help. This is an auxiliary file.
 
 ### asr+resnet.ipynb
 
@@ -51,15 +52,15 @@ Original notebook for the conversion of Yoruba Latin script to IPA.
 
 | Aaron Bahr | Nikita Beklemishev | Haejin Cho | Kai Seidenspinner | Ilinca Vandici |
 |----|------|------|-------------|--------|
-| MFCC extraction| Metrics, G2P adaptation, edit distance algorithms, model training, PPGs, Writing | Model design, Model training, Research, Evaluation, Planning, Writing   | Overleaf, Planning| MFCC Extraction, G2P Planning, PPGs, Writing |
+| MFCC extraction, planning, presentation| Everything related to Yoruba, English and phonology, Edit distance algorithms, Evaluation metrics, A bit of everything, Writing | Model design, Model training, Research, Evaluation, Planning, Writing   | Overleaf template, Group meetings participation| MFCC Extraction, G2P Planning, PPGs, Writing |
 
 
 ## Authors
-Aaron Bahr
+[Aaron Bahr](github.com/AaronB04)
 
-Haejin Cho
+[Haejin Cho](github.com/Mockdd)
 
-Ilinca Vandici
+[Ilinca Vandici](github.com/ilinkaa)
 
 Kai Seidenspinner
 
