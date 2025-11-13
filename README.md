@@ -51,7 +51,7 @@ Original notebook for the conversion of Yoruba Latin script to IPA.
 
 | Aaron Bahr | Nikita Beklemishev | Haejin Cho | Kai Seidenspinner | Ilinca Vandici |
 |----|------|------|-------------|--------|
-| MFCC extraction| Metrics, G2P adaptation, edit distance algorithms, model training, PPGs | Model design, Model training, Research, Evaluation, Planning   | Overleaf, Planning| MFCC Extraction, G2P Planning, PPGs |
+| MFCC extraction| Metrics, G2P adaptation, edit distance algorithms, model training, PPGs, Writing | Model design, Model training, Research, Evaluation, Planning, Writing   | Overleaf, Planning| MFCC Extraction, G2P Planning, PPGs, Writing |
 
 
 ## Authors
