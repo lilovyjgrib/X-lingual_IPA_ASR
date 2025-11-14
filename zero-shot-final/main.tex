@@ -322,7 +322,7 @@ Yoruba nasal \ipa{ã} is associated with o-like vowels, since \ipa{ã} and \ip
 \subsection{How to benchmark our results}
 A challenge in evaluating our model and drawing conclusions about phonology lies in circular nature of alignments. We first use theoretical assumptions about phoneme closeness for our alignment algorithm. Then we treat these alignments like the actual correspondence (e.g., as if the model assigned mentioned the predicted label exactly during the time span of the golden Yoruba label) to speculate which sounds the model was not able to recognize correctly. These alignments are not in fact related to the traceable causal/computational link between in- and output during inference. In a way, the alignment being theoretically sound (cf. Section~\ref{sec:pmi}) is not surprising, because it is delivered via \textit{theory-based} edit distance.
 
-Refer to Appendix~\ref{sec:predictions} for an example of alignment. Impressionistically, although the model output is clearly linked to the input, the alignments are not always intuitively correct. Indeed, they are proven minimal given the feature model, but it does not guarantee to correspond to a linguists intuition. This is a common issue in the pure feature-based \textit{Lev} alignments (Dellert, p.c.). More traceable options include alignment with some kind of supervised training on a human-aligned data. \citet{nerbonne2010} reports good alignment results with log-transformed feature weights. Another option is to embed some pre-knowledge of phonotactics in the cost functions by assigning weights to different features: say, to improve resolution of consonant clusters, knowing the Yoruba \textbf{CV} syllable structure, we can make deleting consonants cheap, while changing consonants to vowels costly. \citet{jaeger2013} argues for an empirical approach free from feature-theory assumptions. 
+Refer to Appendix~\ref{sec:predictions} for an example of alignment. Impressionistically, although the model output is clearly linked to the input, the alignments are not always intuitively correct. Indeed, they are proven minimal given the feature model, but it does not guarantee to correspond to a linguists intuition. This is a common issue in the pure feature-based \textit{Lev} alignments (Dellert, p.c.). More traceable options include alignment with some kind of supervised training on a human-aligned data. \citet{nerbonne2010} reports good alignment results with log-transformed feature weights. Another option is to embed some pre-knowledge of phonotactics in the cost functions by assigning weights to different features: say, to improve resolution of consonant clusters, knowing the Yoruba \textbf{CV} syllable structure, we can make deleting consonants cheap, while changing consonants to vowels costly. \citet{jaeger2013} argues for an empirical approach free from feature-theory assumptions.
 
 Combining a feature model with minimal distance leads to the overall fwPER being hard to interpret. For example, we do not know the expected cost for two random phonemes, so, unlike in the regular PER, there is no intuition such as ``every third letter is wrong''. It is also not clear how much minimizing the alignment lowers the fwPER on average.
 
@@ -372,17 +372,17 @@ We of course encourage the reproduction of this study on different datasets, be 
 
 \section{Conclusion}
 
-We trained an audio to IPA ResNet–BiLSTM CTC recognizer on TIMIT only (\texttt{0.0339} on English validation set), taking inspiration from \citet{xu2021}, 
-to probe zero-shot transfer to Yoruba under a linguistically-motivated feature-weighted mapping scheme. Tackling the problem of different inventories, 
-we applied a modified version of feature-weighted Levenshtein algorithm for evaluation. The system reaches ≈\texttt{0.34} PER on Yoruba (median \texttt{0.30}). 
-We reduced the original model to a third of its size (from 1.55 to 0.8 M. parameters), allowing for faster training and inference, 
-which still preserved the signal needed for cross-lingual transfer. 
+We trained an audio to IPA ResNet–BiLSTM CTC recognizer on TIMIT only (\texttt{0.0339} on English validation set), taking inspiration from \citet{dhakal2022automatic},
+to probe zero-shot transfer to Yoruba under a linguistically-motivated feature-weighted mapping scheme. Tackling the problem of different inventories,
+we applied a modified version of feature-weighted Levenshtein algorithm for evaluation. The system reaches \approx\texttt{0.34} PER on Yoruba (median \texttt{0.30}).
+We reduced the original model to a third of its size (from 1.55 to 0.8 M. parameters), allowing for faster training and inference,
+which still preserved the signal needed for cross-lingual transfer.
 
-We introduce two evaluation metrics based on conditional entropy: confusion and mapping entropy. Despite relatively high confusion entropy, indicating 
-inexact predictions, the mapping entropy seems low, indicating that Yoruba phonemes are unambiguously inferred from the predictions. This can reflect that English's 
-finely split vowel space and overly narrow transcription tradition collapses toward Yoruba’s coarser categories. Our analysis of (N)PMI confirms the assumption of 
-phonology-driven transfer: correspondences track place/manner similarity, voicelessness transfers more reliably than voicing (due to VOT differences), 
-labio-velar stops often surface as \ipa{/w/}. At the same time, the model over-generates, partly because of pauses outside of utterance and extra-linguistic noise in the evaluation set, partly because the transfer keeps the tendency for 
+We introduce two evaluation metrics based on conditional entropy: confusion and mapping entropy. Despite relatively high confusion entropy, indicating
+inexact predictions, the mapping entropy seems low, indicating that Yoruba phonemes are unambiguously inferred from the predictions. This can reflect that English's
+finely split vowel space and overly narrow transcription tradition collapses toward Yoruba’s coarser categories. Our analysis of (N)PMI confirms the assumption of
+phonology-driven transfer: correspondences track place/manner similarity, voicelessness transfers more reliably than voicing (due to VOT differences),
+labio-velar stops are often perceived as \ipa{/w/}. At the same time, the model over-generates, partly because of pauses outside of utterance and extra-linguistic noise in the evaluation set, partly because the transfer keeps the tendency for
 consonant clusters, systematically breaking the syllable structure of Yoruba.
 
 Finally, we noted a methodological circularity: alignments are theory-driven (based on feature phonology) and not causal chain-driven, which biases the further conclusions about phonology into confirming the pre-existing notions. This nature of the alignments remains a problem, as long as they are are not obtained through the time-aligned test set or checked for intuitiveness by supervised training or curation. The fwPER evaluation lacks the easy interpretation of PER. Nonetheless, random baselines and analysis of PPGs suggest that our model's predictions are genuinely signal-bearing.
